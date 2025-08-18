@@ -1,7 +1,3 @@
-﻿namespace FlowBoard.Domain
-{
-    public class Class1
-    {
+﻿// Placeholder removed; domain types live in their own files.
+namespace FlowBoard.Domain;
 
-    }
-}

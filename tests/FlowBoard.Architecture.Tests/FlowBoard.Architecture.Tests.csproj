@@ -13,10 +13,19 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   <PackageReference Include="NSubstitute" Version="5.1.0" />
+  <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FlowBoard.Domain\FlowBoard.Domain.csproj" />
+    <ProjectReference Include="..\..\src\FlowBoard.Application\FlowBoard.Application.csproj" />
+    <ProjectReference Include="..\..\src\FlowBoard.Infrastructure\FlowBoard.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\FlowBoard.Web\FlowBoard.Web.csproj" />
+    <ProjectReference Include="..\..\src\FlowBoard.ServiceDefaults\FlowBoard.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
