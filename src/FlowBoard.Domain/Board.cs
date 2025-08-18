@@ -2,6 +2,9 @@ namespace FlowBoard.Domain;
 
 public sealed class Board
 {
+    // EF Core parameterless constructor
+    private Board() { }
+
     private Board(Guid id, string name, DateTimeOffset createdUtc)
     {
         Id = id;
@@ -10,7 +13,7 @@ public sealed class Board
     }
 
     public Guid Id { get; }
-    public string Name { get; private set; }
+    public string Name { get; private set; } = string.Empty;
     public DateTimeOffset CreatedUtc { get; }
 
     public static Result<Board> Create(string name, IClock clock)

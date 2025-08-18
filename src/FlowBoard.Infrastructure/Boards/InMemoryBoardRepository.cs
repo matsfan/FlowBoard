@@ -1,6 +1,8 @@
 using FlowBoard.Domain;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlowBoard.Infrastructure.Boards;
 
@@ -35,10 +37,25 @@ internal sealed class InMemoryBoardRepository : IBoardRepository
 
 public static class InfrastructureServiceRegistration
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration? configuration = null)
     {
         services.AddSingleton<IClock, SystemClock>();
-        services.AddSingleton<IBoardRepository, InMemoryBoardRepository>();
+
+    var useInMemory = false;
+    var raw = configuration?["Persistence:UseInMemory"];
+    if (bool.TryParse(raw, out var parsed)) useInMemory = parsed;
+        if (useInMemory)
+        {
+            services.AddSingleton<IBoardRepository, InMemoryBoardRepository>();
+        }
+        else
+        {
+            // EF Core registration (Sqlite by default)
+            var connectionString = configuration?.GetConnectionString("FlowBoard") ?? "Data Source=flowboard.db";
+            services.AddDbContext<Infrastructure.Data.FlowBoardDbContext>(o => o.UseSqlite(connectionString));
+            services.AddScoped<IBoardRepository, EfBoardRepository>();
+        }
+
         return services;
     }
 }

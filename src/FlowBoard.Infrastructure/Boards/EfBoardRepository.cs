@@ -1,0 +1,30 @@
+using FlowBoard.Domain;
+using FlowBoard.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace FlowBoard.Infrastructure.Boards;
+
+public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
+{
+    public async Task AddAsync(Board board, CancellationToken ct = default)
+    {
+        await db.Boards.AddAsync(board, ct);
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)
+    {
+        return await db.Boards.AsNoTracking().AnyAsync(b => b.Name.ToLower() == name.ToLower(), ct);
+    }
+
+    public async Task<Board?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return await db.Boards.FindAsync([id], ct);
+    }
+
+    public async Task<IReadOnlyCollection<Board>> ListAsync(CancellationToken ct = default)
+    {
+        var list = await db.Boards.AsNoTracking().OrderBy(b => b.CreatedUtc).ToListAsync(ct);
+        return list;
+    }
+}

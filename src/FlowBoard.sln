@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.Application.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.Architecture.Tests", "..\tests\FlowBoard.Architecture.Tests\FlowBoard.Architecture.Tests.csproj", "{9B8F21DE-D0F1-48EE-895F-CFC52E36C6E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.Infrastructure.Tests", "..\tests\FlowBoard.Infrastructure.Tests\FlowBoard.Infrastructure.Tests.csproj", "{E3B5B9B4-5E1A-4C5D-8D4C-1C1E6C6F1234}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Global
@@ -73,6 +75,7 @@ Global
 		{914FC4FE-D994-4EDD-9897-7824BCFC175A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{81D26345-4682-4C3E-A845-93C842999A7B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9B8F21DE-D0F1-48EE-895F-CFC52E36C6E8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E3B5B9B4-5E1A-4C5D-8D4C-1C1E6C6F1234} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C0155B9-6897-4254-A7BE-04409D9111DA}
