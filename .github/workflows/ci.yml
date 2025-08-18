@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, feature/** ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore
+        run: dotnet restore src/FlowBoard.sln
+
+      - name: Build
+        run: dotnet build src/FlowBoard.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test src/FlowBoard.sln --configuration Release --no-build --collect:"Xplat Code Coverage" --results-directory TestResults
+
+      - name: Publish coverage summary
+        if: success()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Tests executed on $(date)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
