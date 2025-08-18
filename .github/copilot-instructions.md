@@ -1,87 +1,67 @@
-# Copilot Project Instructions: FlowBoard
+## FlowBoard – AI Contributor Guide
+Focused rules so an AI agent can extend the system safely and fast.
 
-Concise guide for AI agents to work productively in this repo.
+### 1. Architecture (Clean, Layered)
+Solution: `src/FlowBoard.sln` (.NET 9).
+Layers & direction: Web → Application → Domain. Infrastructure sits beside Web and is depended on (not the other way). ServiceDefaults is cross‑cutting. Tests mirror layers + Architecture + Infrastructure tests.
+* Domain (`FlowBoard.Domain`): Aggregates (`Board`), value objects, `Result`/`Error`, repository contracts (`IBoardRepository`), time abstraction (`IClock`). No external library types.
+* Application (`FlowBoard.Application`): Use case handlers (e.g., `CreateBoardHandler`), DTOs, DI registration. Pure .NET + Domain only.
+* Infrastructure (`FlowBoard.Infrastructure`): Persistence implementations: in‑memory & EF Core (`FlowBoardDbContext`, `EfBoardRepository`). Chooses provider via config.
+* Web (`FlowBoard.Web`): FastEndpoints endpoints (`Endpoints/**`), Swagger, composition root. Minimal logic; delegates to handlers.
+* ServiceDefaults: OpenTelemetry, health checks, resilience wiring.
+* Architecture tests: enforce dependency rules (NetArchTest).
 
-## 1. Architecture Overview
-Solution: `src/FlowBoard.sln` (.NET 9). Layers:
-- `FlowBoard.Domain`: Core model (currently empty stubs). Must stay free of external deps.
-- `FlowBoard.Application`: Use cases / orchestrators (empty now). Should depend only on Domain.
-- `FlowBoard.Infrastructure`: Implementations of persistence/integration (not yet added). Depends on Domain & Application if needed, not vice‑versa.
-- `FlowBoard.Web`: HTTP edge using FastEndpoints + Swagger. Composition root; references ServiceDefaults.
-- `FlowBoard.ServiceDefaults`: Centralized cross-cutting setup (OpenTelemetry, health checks, service discovery, resilience policies).
-- `FlowBoard.AppHost`: Aspire hosting/bootstrap (currently minimal).
-- Tests: One project per layer + `FlowBoard.Architecture.Tests` (placeholder for dependency rule tests).
+### 2. Persistence Strategy
+Config toggle `Persistence:UseInMemory` (bool) drives DI:
+* In-memory: `InMemoryBoardRepository` (simple `ConcurrentDictionary`).
+* EF Core (default): Sqlite connection `ConnectionStrings:FlowBoard` (default `flowboard.db`). `FlowBoardDbContext` configures `Board` with unique index on `Name`.
+Add migrations with: `dotnet ef migrations add <Name> -p src/FlowBoard.Infrastructure -s src/FlowBoard.Web` (not yet added).
 
-Clean Architecture intent: Dependencies point inward (Web -> Application -> Domain). Infrastructure plugs in via interfaces. Enforce via architecture tests when implemented.
+### 3. Patterns & Conventions
+* Endpoints: `FlowBoard.Web/Endpoints/<Feature>/<Action>.cs`, inherit `Endpoint<Req,Resp>` (create) or `EndpointWithoutRequest<T>` (read). Keep them thin: map request → handler → map result.
+* Result Handling: Domain/Application return `Result` / `Result<T>` (no throwing for expected failures). Endpoints translate failures to 400 (improve to 409 for conflicts later).
+* Repositories: Interface in Domain. Infra implements; Application only consumes abstractions.
+* DI Extensions: `AddApplication()`, `AddInfrastructure(configuration)` called in `Program.cs` after FastEndpoints/Swagger.
+* Time: Use injected `IClock` inside domain factories for testable timestamps.
+* Tests: Domain tests have no mocks. Application tests can mock repositories via NSubstitute. Infrastructure tests use in-memory Sqlite. Architecture tests forbid outward references.
 
-## 2. Current HTTP Stack
-Using FastEndpoints (see `FlowBoard.Web/Program.cs`). Endpoints live under `FlowBoard.Web/Endpoints/**`. Example: `PingEndpoint.cs` defines `GET /ping`.
-Add new endpoints by creating classes inheriting `Endpoint<Req,Resp>` (or `EndpointWithoutRequest<T>`), then FastEndpoints auto-discovers.
+### 4. Adding a Vertical Slice (Example: New Aggregate)
+1. Domain: Create aggregate + invariants + factory returning `Result<T>`.
+2. Contract: Add repository interface methods (only aggregate-lifecycle ops, not query projections).
+3. Application: Add handler + DTO (map aggregate fields only). Return `Result<Dto>`.
+4. Infra: Implement repository (both in-memory & EF if needed). Add config/migration if schema change.
+5. Web: Add endpoints in new folder; translate errors (validation/conflict) to proper HTTP codes.
+6. Tests: Domain invariants; handler happy + failure paths; repository EF test if new persistence logic; architecture stays green.
 
-Swagger: Configured via `builder.Services.SwaggerDocument(...)`; exposed with `app.UseSwaggerGen()`. Title: "FlowBoard API".
+### 5. Build/Test Commands
+Build: `dotnet build src/FlowBoard.sln`
+Run API: `dotnet run --project src/FlowBoard.Web/FlowBoard.Web.csproj`
+Test all: `dotnet test src/FlowBoard.sln`
+Focused test project example: `dotnet test tests/FlowBoard.Domain.Tests/FlowBoard.Domain.Tests.csproj -t`.
 
-## 3. Conventions (Adopt / Maintain)
-- Place endpoint classes in `FlowBoard.Web/Endpoints/<Feature>/` folders.
-- Keep domain entities/value objects inside `FlowBoard.Domain` only; do NOT introduce EF Core or framework types here.
-- Application layer will host command/query handlers or services; keep them free of FastEndpoints or ASP.NET types.
-- Introduce interfaces (e.g., `IBoardRepository`) in Domain or Application; implement in Infrastructure.
-- Cross-cutting (logging, tracing, health) belongs in ServiceDefaults or composition root, not in Domain/Application code.
+### 6. Guardrails
+* Never reference FastEndpoints or EF Core from Domain/Application.
+* Do not return EF entities directly from endpoints—map to DTOs.
+* Keep endpoint code ≤ ~30 lines; push logic into handler or domain methods.
+* New dependencies belong in Infrastructure unless truly cross-cutting.
+* Maintain architecture tests when moving/adding projects (update markers, not rules, unless direction changes intentionally).
 
-## 4. Planned Patterns (Respect Existing Shape)
-Though not implemented yet, code you add should anticipate:
-- CQRS style handlers (optionally Mediatr later). Consider creating a thin dispatcher abstraction if needed.
-- Result type or error notification pattern instead of throwing for expected failures.
-- Domain events raised inside entities and dispatched after persistence (design for but do not prematurely optimize).
+### 7. Extensibility Hooks (Future)
+* Plan for domain events (not yet implemented) – design aggregates so state changes localize invariants.
+* Query side may later introduce read models (separate interfaces rather than inflating repositories).
 
-## 5. Adding a Feature (Example Workflow)
-1. Define domain model (e.g., `Board` aggregate) in `FlowBoard.Domain` with invariants.
-2. Add repository interface (e.g., `IBoardRepository`).
-3. Create application use case (e.g., `CreateBoardHandler`) consuming repository.
-4. Implement repository in Infrastructure (e.g., in-memory placeholder first) and register in Web `Program.cs` (or a dedicated DI extension).
-5. Expose via FastEndpoint (e.g., `Endpoints/Boards/Create.cs`) calling application handler.
-6. Write unit tests in Domain.Tests & Application.Tests; add architecture test locking dependency directions.
+### 8. Quick Reference File Map
+`Domain/Board.cs` – aggregate & invariants.
+`Domain/Result.cs` – Result & Error pattern.
+`Application/Boards/CreateBoard.cs` – handler + DTO pattern.
+`Infrastructure/Data/FlowBoardDbContext.cs` – EF model config.
+`Infrastructure/Boards/EfBoardRepository.cs` – EF persistence.
+`Web/Endpoints/Boards/Create.cs` – endpoint pattern (POST + GET example).
+`tests/**` – layer-specific tests; `ArchitectureRules.cs` enforces layering.
 
-## 6. Testing Guidance
-- Prefer pure unit tests for Domain invariants (no mocks needed).
-- Application tests may mock repository interfaces.
-- Architecture tests (to be implemented) should assert no forbidden references (e.g., Domain not referencing Web or Infrastructure).
+### 9. Common Improvements (When Needed)
+* Add 409 Conflict mapping for duplicate names.
+* Introduce migration project if schema complexity grows.
+* Extract error → HTTP mapping helper for consistent responses.
 
-## 7. Build & Run
-Build solution:
-```
-dotnet build src/FlowBoard.sln
-```
-Run Web API:
-```
-dotnet run --project src/FlowBoard.Web/FlowBoard.Web.csproj
-```
-Tests:
-```
-dotnet test src/FlowBoard.sln
-```
-
-## 8. External Dependencies
-- FastEndpoints (+ Swagger package) for minimal endpoint hosting.
-- OpenTelemetry & resilience via ServiceDefaults (Aspire style).
-No persistence library added yet (expect EF Core or alternative later).
-
-## 9. DI & Composition
-All service registrations currently occur directly in `Program.cs` (FastEndpoints, Swagger, ServiceDefaults). Future additions: add extension methods (e.g., `AddApplication()`, `AddInfrastructure()`) to keep Program.cs slim.
-
-## 10. Agent Do / Avoid
-Do:
-- Keep new framework dependencies out of Domain/Application.
-- Add small vertical slices (Domain -> Application -> Endpoint) incrementally.
-- Provide tests with new logic.
-Avoid:
-- Adding business logic directly in endpoint handlers.
-- Coupling Infrastructure details (EF contexts, HTTP clients) to Domain types.
-- Expanding ServiceDefaults with feature logic.
-
-## 11. Open Tasks / Gaps (Good First Enhancements)
-- Introduce first domain entity & repository abstraction.
-- Implement in-memory Infrastructure layer.
-- Add architecture enforcement tests.
-- Add Result type and validation strategy.
-
-Keep instructions concise; update this file if conventions evolve.
+Keep this file updated when adding a new cross-cutting pattern or modifying dependency direction.
