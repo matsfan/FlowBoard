@@ -1,0 +1,23 @@
+using FastEndpoints;
+
+namespace FlowBoard.Web.Endpoints.Ping;
+
+public class PingEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/ping");
+        AllowAnonymous();
+        Summary(s =>
+        {
+            s.Summary = "Health style ping endpoint";
+            s.Description = "Quick connectivity check returns 'pong'";
+            s.Responses[200] = "pong response";
+        });
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        await SendStringAsync("pong", cancellation: ct);
+    }
+}
