@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlowBoard.ServiceDefaults\FlowBoard.ServiceDefaults.csproj" />
-  <ProjectReference Include="..\FlowBoard.Application\FlowBoard.Application.csproj" />
-  <ProjectReference Include="..\FlowBoard.Infrastructure\FlowBoard.Infrastructure.csproj" />
+    <ProjectReference Include="..\FlowBoard.Application\FlowBoard.Application.csproj" />
+    <ProjectReference Include="..\FlowBoard.Infrastructure\FlowBoard.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
