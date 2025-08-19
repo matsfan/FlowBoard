@@ -24,19 +24,59 @@ jobs:
       - name: Build
         run: dotnet build src/FlowBoard.sln --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test src/FlowBoard.sln --configuration Release --no-build --collect:"Xplat Code Coverage" --results-directory TestResults
+      - name: Test with coverage
+        run: |
+          dotnet test src/FlowBoard.sln \
+            --configuration Release \
+            --no-build \
+            --collect:"XPlat Code Coverage" \
+            --results-directory TestResults
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.*
+
+      - name: Generate coverage report
+        run: |
+          reportgenerator \
+            -reports:TestResults/**/coverage.cobertura.xml \
+            -targetdir:coverage-report \
+            -reporttypes:Html;MarkdownSummary
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report
 
       - name: Publish coverage summary
         if: success()
         run: |
-          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "## Test & Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Tests executed on $(date)" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage-report/Summary.md ]; then
+            echo "### Coverage" >> $GITHUB_STEP_SUMMARY
+            sed -n '1,120p' coverage-report/Summary.md >> $GITHUB_STEP_SUMMARY
+          fi
 
-      - name: Upload test results
+      - name: PR coverage comment
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: coverage-report/Summary.md
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # set in repo secrets
+          files: TestResults/**/coverage.cobertura.xml
+          flags: unittests
+          fail_ci_if_error: false
+          verbose: false
+
+      - name: Upload raw test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-raw
           path: TestResults

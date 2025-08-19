@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Ensure deterministic builds (helps consistent coverage) -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Exclude generated code folders from coverage if added later -->
+    <ExcludeByFile>**/bin/**;**/obj/**</ExcludeByFile>
+  </PropertyGroup>
+</Project>
