@@ -1,6 +1,0 @@
-@FlowBoard.Web_HostAddress = http://localhost:5249
-
-GET {{FlowBoard.Web_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
