@@ -2,7 +2,7 @@ using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using FlowBoard.Application;
-using FlowBoard.Infrastructure.Boards;
+using FlowBoard.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

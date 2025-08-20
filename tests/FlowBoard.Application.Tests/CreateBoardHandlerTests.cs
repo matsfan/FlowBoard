@@ -2,6 +2,8 @@ using FlowBoard.Application.Boards.Commands;
 using FlowBoard.Application.Boards.Handlers;
 using FlowBoard.Application.Boards.Dtos;
 using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.Aggregates;
 using NSubstitute;
 
 namespace FlowBoard.Application.Tests;

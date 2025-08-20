@@ -1,5 +1,7 @@
 using FastEndpoints;
 using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.Aggregates;
 
 namespace FlowBoard.Web.Endpoints.Boards;
 

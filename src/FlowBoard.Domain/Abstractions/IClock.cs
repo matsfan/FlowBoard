@@ -1,1 +1,6 @@
-// Duplicate removed. Authoritative implementation now at src/FlowBoard.Domain/IClock.cs
+namespace FlowBoard.Domain.Abstractions;
+
+public interface IClock
+{
+    DateTimeOffset UtcNow { get; }
+}

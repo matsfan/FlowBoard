@@ -1,6 +1,8 @@
 using FlowBoard.Application.Boards.Handlers;
 using FlowBoard.Application.Boards.Queries;
 using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.Aggregates;
 using NSubstitute;
 
 namespace FlowBoard.Application.Tests;

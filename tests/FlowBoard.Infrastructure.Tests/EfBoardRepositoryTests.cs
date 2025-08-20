@@ -1,6 +1,7 @@
 using FlowBoard.Domain;
-using FlowBoard.Infrastructure.Boards;
-using FlowBoard.Infrastructure.Data;
+using FlowBoard.Domain.Aggregates;
+using FlowBoard.Infrastructure.Persistence.Ef;
+using FlowBoard.Infrastructure.Persistence.Ef.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 

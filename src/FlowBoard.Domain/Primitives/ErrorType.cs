@@ -1,1 +1,9 @@
-// Duplicate removed. Authoritative implementation now at src/FlowBoard.Domain/ErrorType.cs
+namespace FlowBoard.Domain.Primitives;
+
+public enum ErrorType
+{
+    Validation,
+    Conflict,
+    NotFound,
+    Unexpected
+}

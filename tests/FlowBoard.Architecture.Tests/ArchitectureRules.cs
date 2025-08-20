@@ -1,14 +1,14 @@
 using NetArchTest.Rules;
 using System.Reflection;
 using Xunit;
-using FlowBoard.Infrastructure.Boards; // marker
+using FlowBoard.Infrastructure; // marker
 using FlowBoard.Web; // marker
 
 namespace FlowBoard.Architecture.Tests;
 
 public class ArchitectureRules
 {
-    private static readonly Assembly Domain = typeof(FlowBoard.Domain.Board).Assembly;
+    private static readonly Assembly Domain = typeof(FlowBoard.Domain.Aggregates.Board).Assembly;
     private static readonly Assembly Application = typeof(FlowBoard.Application.DependencyInjection).Assembly;
     private static readonly Assembly Infrastructure = typeof(InfrastructureAssemblyMarker).Assembly;
     private static readonly Assembly Web = typeof(WebAssemblyMarker).Assembly; // Marker type
@@ -59,7 +59,7 @@ public class ArchitectureRules
         // Example rule placeholder: ensure Web layer does not reference infrastructure implementation namespace
         var result = Types.InAssembly(Web)
             .That().ResideInNamespace("FlowBoard.Web")
-            .ShouldNot().HaveDependencyOn("FlowBoard.Infrastructure.Boards")
+            .ShouldNot().HaveDependencyOn("FlowBoard.Infrastructure.Boards") // legacy namespace kept in rule for safety
             .GetResult();
 
         Assert.True(result.IsSuccessful, Describe(result));

@@ -1,4 +1,7 @@
-namespace FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.Primitives;
+
+namespace FlowBoard.Domain.Aggregates;
 
 public sealed class Board
 {

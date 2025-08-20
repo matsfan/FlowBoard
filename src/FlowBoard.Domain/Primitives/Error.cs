@@ -1,1 +1,8 @@
-// Duplicate removed. Authoritative implementation now at src/FlowBoard.Domain/Error.cs
+namespace FlowBoard.Domain.Primitives;
+
+public readonly record struct Error(string Code, string Message, ErrorType Type)
+{
+    public static Error Validation(string code, string message) => new(code, message, ErrorType.Validation);
+    public static Error Conflict(string code, string message) => new(code, message, ErrorType.Conflict);
+    public static Error NotFound(string code, string message) => new(code, message, ErrorType.NotFound);
+}

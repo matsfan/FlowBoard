@@ -1,4 +1,5 @@
 using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
 using FlowBoard.Infrastructure.Persistence.Ef;
 using FlowBoard.Infrastructure.Persistence.Ef.Repositories;
 using FlowBoard.Infrastructure.Persistence.InMemory;

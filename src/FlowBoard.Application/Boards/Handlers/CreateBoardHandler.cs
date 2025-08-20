@@ -1,6 +1,8 @@
 using FlowBoard.Application.Boards.Commands;
 using FlowBoard.Application.Boards.Dtos;
-using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.Primitives;
 
 namespace FlowBoard.Application.Boards.Handlers;
 

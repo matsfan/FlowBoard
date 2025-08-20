@@ -1,4 +1,6 @@
-namespace FlowBoard.Domain;
+using FlowBoard.Domain.Aggregates;
+
+namespace FlowBoard.Domain.Abstractions;
 
 public interface IBoardRepository
 {

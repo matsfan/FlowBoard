@@ -1,5 +1,6 @@
 using FlowBoard.Application.Boards.Handlers;
 using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FlowBoard.Application;

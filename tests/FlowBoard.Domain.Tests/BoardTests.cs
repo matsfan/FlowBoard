@@ -1,4 +1,5 @@
-using FlowBoard.Domain;
+using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.Abstractions;
 
 namespace FlowBoard.Domain.Tests;
 

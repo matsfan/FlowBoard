@@ -1,4 +1,6 @@
 using FlowBoard.Domain;
+using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.Aggregates;
 using FlowBoard.Infrastructure.Persistence.Ef;
 using Microsoft.EntityFrameworkCore;
 
