@@ -1,4 +1,4 @@
-using FlowBoard.Application.Boards;
+using FlowBoard.Application.Boards.Handlers;
 using FlowBoard.Domain;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,7 +8,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<ICreateBoardHandler, CreateBoardHandler>();
+    services.AddScoped<CreateBoardHandler>();
+    services.AddScoped<ListBoardsHandler>();
         return services;
     }
 }

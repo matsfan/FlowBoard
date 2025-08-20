@@ -1,4 +1,6 @@
-using FlowBoard.Application.Boards;
+using FlowBoard.Application.Boards.Commands;
+using FlowBoard.Application.Boards.Handlers;
+using FlowBoard.Application.Boards.Dtos;
 using FlowBoard.Domain;
 using NSubstitute;
 
@@ -31,6 +33,6 @@ public class CreateBoardHandlerTests
         _repo.ExistsByNameAsync("Board", Arg.Any<CancellationToken>()).Returns(false);
         var result = await _handler.HandleAsync(new CreateBoardCommand("Board"));
         Assert.True(result.IsSuccess);
-        await _repo.Received(1).AddAsync(Arg.Any<Board>(), Arg.Any<CancellationToken>());
+    await _repo.Received(1).AddAsync(Arg.Any<Board>(), Arg.Any<CancellationToken>());
     }
 }

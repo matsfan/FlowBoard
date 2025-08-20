@@ -1,10 +1,11 @@
 using FastEndpoints;
-using FlowBoard.Application.Boards;
+using FlowBoard.Application.Boards.Commands;
+using FlowBoard.Application.Boards.Handlers;
 using FlowBoard.Domain;
 
 namespace FlowBoard.Web.Endpoints.Boards;
 
-public sealed class CreateBoardEndpoint(ICreateBoardHandler handler) : Endpoint<CreateBoardRequest, CreateBoardResponse>
+public sealed class CreateBoardEndpoint(CreateBoardHandler handler) : Endpoint<CreateBoardRequest, CreateBoardResponse>
 {
     public override void Configure()
     {
@@ -19,7 +20,7 @@ public sealed class CreateBoardEndpoint(ICreateBoardHandler handler) : Endpoint<
 
     public override async Task HandleAsync(CreateBoardRequest req, CancellationToken ct)
     {
-        var result = await handler.HandleAsync(new CreateBoardCommand(req.Name), ct);
+    var result = await handler.HandleAsync(new CreateBoardCommand(req.Name), ct);
         if (result.IsFailure)
         {
             // For simplicity treat validation/conflict as 400. Could differentiate 409.

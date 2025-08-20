@@ -1,5 +1,6 @@
 using FastEndpoints;
-using FlowBoard.Application.Boards;
+using FlowBoard.Application.Boards.Handlers;
+using FlowBoard.Application.Boards.Queries;
 
 namespace FlowBoard.Web.Endpoints.Boards;
 
@@ -15,7 +16,7 @@ public sealed class ListBoardsResponse
     }
 }
 
-public sealed class ListBoardsEndpoint(IListBoardsHandler handler) : EndpointWithoutRequest<ListBoardsResponse>
+public sealed class ListBoardsEndpoint(ListBoardsHandler handler) : EndpointWithoutRequest<ListBoardsResponse>
 {
     public override void Configure()
     {
