@@ -47,12 +47,4 @@ public sealed class Board
     }
 }
 
-public interface IClock
-{
-    DateTimeOffset UtcNow { get; }
-}
-
-public sealed class SystemClock : IClock
-{
-    public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
-}
+// Clock abstractions moved to separate files (IClock.cs, SystemClock.cs)

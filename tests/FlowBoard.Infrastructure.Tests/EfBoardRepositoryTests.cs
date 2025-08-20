@@ -35,4 +35,24 @@ public class EfBoardRepositoryTests
         Assert.NotNull(loaded);
         Assert.Equal(created.Value!.Name, loaded!.Name);
     }
+
+    [Fact]
+    public async Task List_Returns_All_In_Order()
+    {
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        await using var ctx = CreateContext(connection);
+        var repo = new EfBoardRepository(ctx);
+        var clock = new SystemClock();
+
+        var b1 = Board.Create("Alpha", clock).Value!;
+        await repo.AddAsync(b1);
+        var b2 = Board.Create("Beta", clock).Value!;
+        await repo.AddAsync(b2);
+
+        var list = await repo.ListAsync();
+        Assert.Equal(2, list.Count);
+        Assert.Contains(list, b => b.Name == "Alpha");
+        Assert.Contains(list, b => b.Name == "Beta");
+    }
 }

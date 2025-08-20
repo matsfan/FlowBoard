@@ -2,14 +2,6 @@ using FlowBoard.Domain;
 
 namespace FlowBoard.Application.Boards;
 
-public sealed record CreateBoardCommand(string Name);
-public sealed record BoardDto(Guid Id, string Name, DateTimeOffset CreatedUtc);
-
-public interface ICreateBoardHandler
-{
-    Task<Result<BoardDto>> HandleAsync(CreateBoardCommand command, CancellationToken ct = default);
-}
-
 public sealed class CreateBoardHandler(IBoardRepository repository, IClock clock) : ICreateBoardHandler
 {
     public async Task<Result<BoardDto>> HandleAsync(CreateBoardCommand command, CancellationToken ct = default)

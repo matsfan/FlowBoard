@@ -24,7 +24,8 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
 
     public async Task<IReadOnlyCollection<Board>> ListAsync(CancellationToken ct = default)
     {
-        var list = await db.Boards.AsNoTracking().OrderBy(b => b.CreatedUtc).ToListAsync(ct);
-        return list;
+    // SQLite provider (in-memory mode) cannot translate ORDER BY DateTimeOffset; fetch then order client-side.
+    var list = await db.Boards.AsNoTracking().ToListAsync(ct);
+    return list.OrderBy(b => b.CreatedUtc).ToList();
     }
 }
