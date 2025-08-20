@@ -19,14 +19,14 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore
-        run: dotnet restore src/FlowBoard.sln
+        run: dotnet restore FlowBoard.sln
 
       - name: Build
-        run: dotnet build src/FlowBoard.sln --configuration Release --no-restore
+        run: dotnet build FlowBoard.sln --configuration Release --no-restore
 
       - name: Test with coverage
         run: |
-          dotnet test src/FlowBoard.sln \
+          dotnet test FlowBoard.sln \
             --configuration Release \
             --no-build \
             --collect:"XPlat Code Coverage" \
