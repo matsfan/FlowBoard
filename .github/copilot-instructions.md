@@ -7,7 +7,7 @@ Layers & direction: Web → Application → Domain. Infrastructure sits beside W
 * Domain (`FlowBoard.Domain`): Aggregates (`Board`), value objects, `Result`/`Error`, repository contracts (`IBoardRepository`), time abstraction (`IClock`). No external library types.
 * Application (`FlowBoard.Application`): Use case handlers (e.g., `CreateBoardHandler`), DTOs, DI registration. Pure .NET + Domain only.
 * Infrastructure (`FlowBoard.Infrastructure`): Persistence implementations: in‑memory & EF Core (`FlowBoardDbContext`, `EfBoardRepository`). Chooses provider via config.
-* Web (`FlowBoard.Web`): FastEndpoints endpoints (`Endpoints/**`), Swagger, composition root. Minimal logic; delegates to handlers.
+* Web (`FlowBoard.WebApi`): FastEndpoints endpoints (`Endpoints/**`), Swagger, composition root. Minimal logic; delegates to handlers.
 * ServiceDefaults: OpenTelemetry, health checks, resilience wiring.
 * Architecture tests: enforce dependency rules (NetArchTest).
 
@@ -15,7 +15,7 @@ Layers & direction: Web → Application → Domain. Infrastructure sits beside W
 Config toggle `Persistence:UseInMemory` (bool) drives DI:
 * In-memory: `InMemoryBoardRepository` (simple `ConcurrentDictionary`).
 * EF Core (default): Sqlite connection `ConnectionStrings:FlowBoard` (default `flowboard.db`). `FlowBoardDbContext` configures `Board` with unique index on `Name`.
-Add migrations with: `dotnet ef migrations add <Name> -p src/FlowBoard.Infrastructure -s src/FlowBoard.Web` (not yet added).
+Add migrations with: `dotnet ef migrations add <Name> -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi` (not yet added).
 
 ### 3. Patterns & Conventions
 * Endpoints: `FlowBoard.Web/Endpoints/<Feature>/<Action>.cs`, inherit `Endpoint<Req,Resp>` (create) or `EndpointWithoutRequest<T>` (read). Keep them thin: map request → handler → map result.
@@ -35,7 +35,7 @@ Add migrations with: `dotnet ef migrations add <Name> -p src/FlowBoard.Infrastru
 
 ### 5. Build/Test Commands
 Build: `dotnet build src/FlowBoard.sln`
-Run API: `dotnet run --project src/FlowBoard.Web/FlowBoard.Web.csproj`
+Run API: `dotnet run --project src/FlowBoard.WebApi/FlowBoard.WebApi.csproj`
 Test all: `dotnet test src/FlowBoard.sln`
 Focused test project example: `dotnet test tests/FlowBoard.Domain.Tests/FlowBoard.Domain.Tests.csproj -t`.
 

@@ -24,7 +24,7 @@
     <ProjectReference Include="..\..\src\FlowBoard.Domain\FlowBoard.Domain.csproj" />
     <ProjectReference Include="..\..\src\FlowBoard.Application\FlowBoard.Application.csproj" />
     <ProjectReference Include="..\..\src\FlowBoard.Infrastructure\FlowBoard.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\FlowBoard.Web\FlowBoard.Web.csproj" />
+  <ProjectReference Include="..\..\src\FlowBoard.WebApi\FlowBoard.WebApi.csproj" />
     <ProjectReference Include="..\..\src\FlowBoard.ServiceDefaults\FlowBoard.ServiceDefaults.csproj" />
   </ItemGroup>
 

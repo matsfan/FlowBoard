@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FlowBoard.Web\FlowBoard.Web.csproj" />
+    <ProjectReference Include="..\FlowBoard.WebApi\FlowBoard.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

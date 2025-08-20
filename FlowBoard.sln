@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.Application", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.Infrastructure", "src\FlowBoard.Infrastructure\FlowBoard.Infrastructure.csproj", "{447D54D7-7E51-41A4-BEC0-E1A61DF46756}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.Web", "src\FlowBoard.Web\FlowBoard.Web.csproj", "{99D4B6BE-5578-32A8-0E89-9CC75D097011}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.WebApi", "src\FlowBoard.WebApi\FlowBoard.WebApi.csproj", "{99D4B6BE-5578-32A8-0E89-9CC75D097011}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowBoard.AppHost", "src\FlowBoard.AppHost\FlowBoard.AppHost.csproj", "{9CF00CA3-498A-44A1-8061-E65BF89C4191}"
 EndProject

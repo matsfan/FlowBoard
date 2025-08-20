@@ -1,0 +1,3 @@
+@FlowBoard.WebApi_HostAddress = http://localhost:5249
+
+GET {{FlowBoard.WebApi_HostAddress}}/weatherforecast/

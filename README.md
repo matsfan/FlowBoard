@@ -40,7 +40,7 @@ No coverage gates are configured; add them later by setting `fail_ci_if_error: t
 `src/FlowBoard.Domain` – Aggregates, Result pattern, contracts.
 `src/FlowBoard.Application` – Use case handlers & DTOs.
 `src/FlowBoard.Infrastructure` – EF Core / in-memory persistence.
-`src/FlowBoard.Web` – FastEndpoints API & composition root.
+`src/FlowBoard.WebApi` – FastEndpoints API & composition root.
 `tests/**` – Unit, integration, architecture tests.
 
 ## Quick Commands
@@ -54,8 +54,26 @@ dotnet build src/FlowBoard.sln
 Run API:
 
 ```bash
-dotnet run --project src/FlowBoard.Web/FlowBoard.Web.csproj
+dotnet run --project src/FlowBoard.WebApi/FlowBoard.WebApi.csproj
 ```
+
+Run Web UI (Vite React + Tailwind):
+
+```bash
+cd src/FlowBoard.WebApp
+npm install # first time
+npm run dev
+```
+
+The dev server runs on <http://localhost:5173> and proxies API calls starting with `/api` to the backend (adjust target port in `vite.config.ts` if your ASP.NET app listens on a different port). CORS is enabled for the dev origin.
+
+Production build:
+
+```bash
+cd src/FlowBoard.WebApp && npm run build
+```
+
+Resulting static assets are emitted to `dist/` (you can later integrate a hosting strategy – e.g. serve via ASP.NET or deploy separately to static hosting).
 
 Run tests:
 

@@ -12,10 +12,10 @@ builder.AddServiceDefaults();
 builder.Services.AddFastEndpoints();
 builder.Services.SwaggerDocument(o =>
 {
-	o.DocumentSettings = s =>
-	{
-		s.Title = "FlowBoard API";
-	};
+    o.DocumentSettings = s =>
+    {
+        s.Title = "FlowBoard API";
+    };
 });
 
 // Layer registrations
@@ -25,12 +25,12 @@ builder.Services.AddInfrastructure();
 const string DevCorsPolicy = "DevCors";
 builder.Services.AddCors(options =>
 {
-	options.AddPolicy(DevCorsPolicy, policy =>
-	{
-		policy.WithOrigins("http://localhost:5173")
-			  .AllowAnyHeader()
-			  .AllowAnyMethod();
-	});
+    options.AddPolicy(DevCorsPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();

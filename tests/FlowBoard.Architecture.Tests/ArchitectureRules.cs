@@ -2,7 +2,7 @@ using NetArchTest.Rules;
 using System.Reflection;
 using Xunit;
 using FlowBoard.Infrastructure; // marker
-using FlowBoard.Web; // marker
+using FlowBoard.WebApi; // marker
 
 namespace FlowBoard.Architecture.Tests;
 
@@ -58,7 +58,7 @@ public class ArchitectureRules
     {
         // Example rule placeholder: ensure Web layer does not reference infrastructure implementation namespace
         var result = Types.InAssembly(Web)
-            .That().ResideInNamespace("FlowBoard.Web")
+            .That().ResideInNamespace("FlowBoard.WebApi")
             .ShouldNot().HaveDependencyOn("FlowBoard.Infrastructure.Boards") // legacy namespace kept in rule for safety
             .GetResult();
 
