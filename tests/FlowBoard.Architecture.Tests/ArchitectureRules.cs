@@ -1,7 +1,7 @@
 using NetArchTest.Rules;
 using System.Reflection;
 using Xunit;
-using FlowBoard.Infrastructure; // marker
+using FlowBoard.Infrastructure.Services; // marker
 using FlowBoard.WebApi; // marker
 
 namespace FlowBoard.Architecture.Tests;
@@ -9,7 +9,7 @@ namespace FlowBoard.Architecture.Tests;
 public class ArchitectureRules
 {
     private static readonly Assembly Domain = typeof(FlowBoard.Domain.Aggregates.Board).Assembly;
-    private static readonly Assembly Application = typeof(FlowBoard.Application.DependencyInjection).Assembly;
+    private static readonly Assembly Application = typeof(FlowBoard.Application.Services.ServiceRegistration).Assembly;
     private static readonly Assembly Infrastructure = typeof(InfrastructureAssemblyMarker).Assembly;
     private static readonly Assembly Web = typeof(WebAssemblyMarker).Assembly; // Marker type
 

@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FlowBoard.Infrastructure;
+namespace FlowBoard.Infrastructure.Services;
 
-public static class DependencyInjection
+public static class ServiceRegistration
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration? configuration = null)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration? configuration = null)
     {
         services.AddSingleton<IClock, SystemClock>();
 

@@ -1,8 +1,8 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.Extensions.DependencyInjection;
-using FlowBoard.Application;
-using FlowBoard.Infrastructure;
+using FlowBoard.Application.Services;
+using FlowBoard.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,8 +19,8 @@ builder.Services.SwaggerDocument(o =>
 });
 
 // Layer registrations
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
 // CORS for local WebApp (Vite dev server)
 const string DevCorsPolicy = "DevCors";
 builder.Services.AddCors(options =>

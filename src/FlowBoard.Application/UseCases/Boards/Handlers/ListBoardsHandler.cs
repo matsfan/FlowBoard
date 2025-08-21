@@ -1,13 +1,13 @@
-using FlowBoard.Application.Boards.Dtos;
-using FlowBoard.Application.Boards.Queries;
+using FlowBoard.Application.UseCases.Boards.Dtos;
+using FlowBoard.Application.UseCases.Boards.Queries;
 using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Primitives;
 
-namespace FlowBoard.Application.Boards.Handlers;
+namespace FlowBoard.Application.UseCases.Boards.Handlers;
 
 public sealed class ListBoardsHandler(IBoardRepository repository)
 {
-    public async Task<Result<IReadOnlyCollection<BoardDto>>> HandleAsync(Queries.ListBoardsQuery query, CancellationToken ct = default)
+    public async Task<Result<IReadOnlyCollection<BoardDto>>> HandleAsync(ListBoardsQuery query, CancellationToken ct = default)
     {
         var boards = await repository.ListAsync(ct);
         var dtos = boards

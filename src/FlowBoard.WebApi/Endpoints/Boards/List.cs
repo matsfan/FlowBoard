@@ -1,6 +1,6 @@
 using FastEndpoints;
-using FlowBoard.Application.Boards.Handlers;
-using FlowBoard.Application.Boards.Queries;
+using FlowBoard.Application.UseCases.Boards.Handlers;
+using FlowBoard.Application.UseCases.Boards.Queries;
 
 namespace FlowBoard.WebApi.Endpoints.Boards;
 
