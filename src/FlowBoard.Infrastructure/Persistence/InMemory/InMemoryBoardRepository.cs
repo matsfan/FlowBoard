@@ -16,6 +16,12 @@ internal sealed class InMemoryBoardRepository : IBoardRepository
         return Task.CompletedTask;
     }
 
+    public Task UpdateAsync(Board board, CancellationToken ct = default)
+    {
+        _boards[board.Id] = board; // overwrite
+        return Task.CompletedTask;
+    }
+
     public Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)
     {
         var exists = _boards.Values.Any(b => string.Equals(b.Name.Value, name, StringComparison.OrdinalIgnoreCase));

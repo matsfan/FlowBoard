@@ -58,4 +58,44 @@ public sealed class Column
         _cards.Add(card);
         return card;
     }
+
+    internal Card? FindCard(CardId id) => _cards.FirstOrDefault(c => c.Id == id);
+
+    internal bool ContainsCard(CardId id) => _cards.Any(c => c.Id == id);
+
+    internal void RemoveCard(Card card)
+    {
+        _cards.Remove(card);
+        NormalizeOrder();
+    }
+
+    internal void InsertCardAt(Card card, int index)
+    {
+        _cards.Insert(index, card);
+        NormalizeOrder();
+    }
+
+    internal Result ReorderCard(CardId id, int newOrder)
+    {
+        var card = FindCard(id);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in column");
+        if (newOrder < 0 || newOrder >= _cards.Count)
+            return Error.Validation("Card.Move.InvalidOrder", "New order is out of range");
+        var currentIndex = _cards.IndexOf(card);
+        if (currentIndex == newOrder)
+            return Result.Success();
+        _cards.RemoveAt(currentIndex);
+        _cards.Insert(newOrder, card);
+        NormalizeOrder();
+        return Result.Success();
+    }
+
+    private void NormalizeOrder()
+    {
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            _cards[i].SetOrder(new OrderIndex(i));
+        }
+    }
 }

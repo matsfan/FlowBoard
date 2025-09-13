@@ -15,6 +15,12 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
         await db.SaveChangesAsync(ct);
     }
 
+    public async Task UpdateAsync(Board board, CancellationToken ct = default)
+    {
+        db.Boards.Update(board);
+        await db.SaveChangesAsync(ct);
+    }
+
     public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)
     {
         return await db.Boards.AsNoTracking().AnyAsync(b => b.Name.Value.ToLower() == name.ToLower(), ct);

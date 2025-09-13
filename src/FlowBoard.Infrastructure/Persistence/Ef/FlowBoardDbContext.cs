@@ -72,7 +72,8 @@ public sealed class FlowBoardDbContext(DbContextOptions<FlowBoardDbContext> opti
 
                 cb.OwnsMany(c => c.Cards, cardb =>
                 {
-                    cardb.WithOwner().HasForeignKey("ColumnId", "BoardId");
+                    // Each Card row references its owning Column via ColumnId
+                    cardb.WithOwner().HasForeignKey("ColumnId");
                     cardb.Property(x => x.Id)
                         .HasConversion(cardIdConverter)
                         .ValueGeneratedNever();

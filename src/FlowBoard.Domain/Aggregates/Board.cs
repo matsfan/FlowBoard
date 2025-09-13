@@ -120,6 +120,42 @@ public sealed class Board
             return Error.NotFound("Column.NotFound", "Column not found");
         return column.AddCard(title, description, clock.UtcNow);
     }
+
+    public Result MoveCard(CardId cardId, ColumnId fromColumnId, ColumnId toColumnId, int targetOrder)
+    {
+        var from = _columns.FirstOrDefault(c => c.Id == fromColumnId);
+        if (from is null)
+            return Error.NotFound("Column.NotFound", "Source column not found");
+        var to = _columns.FirstOrDefault(c => c.Id == toColumnId);
+        if (to is null)
+            return Error.NotFound("Column.NotFound", "Target column not found");
+
+        var card = from.FindCard(cardId);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in source column");
+
+        if (targetOrder < 0 || targetOrder > to.Cards.Count)
+            return Error.Validation("Card.Move.InvalidOrder", "Target order is out of range");
+
+        if (from.Id != to.Id && to.WipLimit.HasValue && to.Cards.Count >= to.WipLimit.Value.Value)
+            return Error.Conflict("Column.WipLimit.Violation", "WIP limit reached for target column");
+
+        // Remove from source and insert into target
+        from.RemoveCard(card);
+        // Adjust targetOrder if inserting at end
+        if (targetOrder > to.Cards.Count)
+            targetOrder = to.Cards.Count;
+        to.InsertCardAt(card, targetOrder);
+        return Result.Success();
+    }
+
+    public Result ReorderCardWithinColumn(ColumnId columnId, CardId cardId, int newOrder)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        return column.ReorderCard(cardId, newOrder);
+    }
     #endregion
 }
 
