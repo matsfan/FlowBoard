@@ -1,6 +1,7 @@
 using FlowBoard.Domain;
 using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.ValueObjects;
 using FlowBoard.Infrastructure.Persistence.Ef;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,10 +17,10 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
 
     public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)
     {
-        return await db.Boards.AsNoTracking().AnyAsync(b => b.Name.ToLower() == name.ToLower(), ct);
+        return await db.Boards.AsNoTracking().AnyAsync(b => b.Name.Value.ToLower() == name.ToLower(), ct);
     }
 
-    public async Task<Board?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task<Board?> GetByIdAsync(BoardId id, CancellationToken ct = default)
     {
         return await db.Boards.FindAsync([id], ct);
     }

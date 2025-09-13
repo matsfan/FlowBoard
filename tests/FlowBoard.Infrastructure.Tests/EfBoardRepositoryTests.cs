@@ -34,7 +34,7 @@ public class EfBoardRepositoryTests
 
         var loaded = await repo.GetByIdAsync(created.Value!.Id);
         Assert.NotNull(loaded);
-        Assert.Equal(created.Value!.Name, loaded!.Name);
+        Assert.Equal(created.Value!.Name.Value, loaded!.Name.Value);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class EfBoardRepositoryTests
 
         var list = await repo.ListAsync();
         Assert.Equal(2, list.Count);
-        Assert.Contains(list, b => b.Name == "Alpha");
-        Assert.Contains(list, b => b.Name == "Beta");
+        Assert.Contains(list, b => b.Name.Value == "Alpha");
+        Assert.Contains(list, b => b.Name.Value == "Beta");
     }
 }

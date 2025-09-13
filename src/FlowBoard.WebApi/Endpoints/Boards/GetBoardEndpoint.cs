@@ -1,7 +1,6 @@
 using FastEndpoints;
-using FlowBoard.Domain;
 using FlowBoard.Domain.Abstractions;
-using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.ValueObjects;
 
 namespace FlowBoard.WebApi.Endpoints.Boards;
 
@@ -15,18 +14,18 @@ public sealed class GetBoardEndpoint(IBoardRepository repository) : EndpointWith
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var id = Route<Guid>("id");
-        if (id == Guid.Empty)
+        var idValue = Route<Guid>("id");
+        if (idValue == Guid.Empty)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
-        var board = await repository.GetByIdAsync(id, ct);
+        var board = await repository.GetByIdAsync(new BoardId(idValue), ct);
         if (board is null)
         {
-            await SendNotFoundAsync(ct);
+            await Send.NotFoundAsync(ct);
             return;
         }
-        await SendAsync(new CreateBoardResponse { Id = board.Id, Name = board.Name, CreatedUtc = board.CreatedUtc }, cancellation: ct);
+        await Send.OkAsync(new CreateBoardResponse { Id = board.Id.Value, Name = board.Name.Value, CreatedUtc = board.CreatedUtc }, ct);
     }
 }

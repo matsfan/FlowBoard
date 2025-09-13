@@ -26,7 +26,7 @@ public class BoardTests
         var clock = new TestClock(now);
         var result = Board.Create("My Board", clock);
         Assert.True(result.IsSuccess);
-        Assert.Equal("My Board", result.Value!.Name);
+        Assert.Equal("My Board", result.Value!.Name.Value);
         Assert.Equal(now, result.Value.CreatedUtc);
     }
 
@@ -37,6 +37,6 @@ public class BoardTests
         var board = Board.Create("Name", clock).Value!;
         var rename = board.Rename("New Name");
         Assert.True(rename.IsSuccess);
-        Assert.Equal("New Name", board.Name);
+        Assert.Equal("New Name", board.Name.Value);
     }
 }

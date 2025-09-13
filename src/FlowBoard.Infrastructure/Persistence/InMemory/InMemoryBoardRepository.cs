@@ -1,13 +1,14 @@
 using FlowBoard.Domain;
 using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.ValueObjects;
 using System.Collections.Concurrent;
 
 namespace FlowBoard.Infrastructure.Persistence.InMemory;
 
 internal sealed class InMemoryBoardRepository : IBoardRepository
 {
-    private readonly ConcurrentDictionary<Guid, Board> _boards = new();
+    private readonly ConcurrentDictionary<BoardId, Board> _boards = new();
 
     public Task AddAsync(Board board, CancellationToken ct = default)
     {
@@ -17,11 +18,11 @@ internal sealed class InMemoryBoardRepository : IBoardRepository
 
     public Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)
     {
-        var exists = _boards.Values.Any(b => string.Equals(b.Name, name, StringComparison.OrdinalIgnoreCase));
+        var exists = _boards.Values.Any(b => string.Equals(b.Name.Value, name, StringComparison.OrdinalIgnoreCase));
         return Task.FromResult(exists);
     }
 
-    public Task<Board?> GetByIdAsync(Guid id, CancellationToken ct = default)
+    public Task<Board?> GetByIdAsync(BoardId id, CancellationToken ct = default)
     {
         _boards.TryGetValue(id, out var board);
         return Task.FromResult(board);

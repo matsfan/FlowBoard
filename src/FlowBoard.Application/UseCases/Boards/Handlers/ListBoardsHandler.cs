@@ -12,7 +12,7 @@ public sealed class ListBoardsHandler(IBoardRepository repository)
         var boards = await repository.ListAsync(ct);
         var dtos = boards
             .OrderBy(b => b.CreatedUtc)
-            .Select(b => new BoardDto(b.Id, b.Name, b.CreatedUtc))
+            .Select(b => new BoardDto(b.Id.Value, b.Name.Value, b.CreatedUtc))
             .ToList()
             .AsReadOnly();
         return dtos;

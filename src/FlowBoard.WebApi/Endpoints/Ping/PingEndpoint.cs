@@ -18,6 +18,6 @@ public class PingEndpoint : EndpointWithoutRequest<string>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendStringAsync("pong", cancellation: ct);
+        await Send.StringAsync("pong", cancellation: ct);
     }
 }

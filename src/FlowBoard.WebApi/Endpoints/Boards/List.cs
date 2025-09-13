@@ -36,7 +36,7 @@ public sealed class ListBoardsEndpoint(ListBoardsHandler handler) : EndpointWith
         {
             // Should not normally fail; treat as 400 for consistency (validation) though no validation currently.
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));
-            await SendErrorsAsync(cancellation: ct);
+            await Send.ErrorsAsync(cancellation: ct);
             return;
         }
         var items = result.Value!.Select(b => new ListBoardsResponse.BoardItem
@@ -46,6 +46,6 @@ public sealed class ListBoardsEndpoint(ListBoardsHandler handler) : EndpointWith
             CreatedUtc = b.CreatedUtc
         }).ToList();
 
-        await SendAsync(new ListBoardsResponse { Boards = items }, cancellation: ct);
+        await Send.OkAsync(new ListBoardsResponse { Boards = items }, cancellation: ct);
     }
 }
