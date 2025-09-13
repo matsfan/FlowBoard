@@ -112,6 +112,14 @@ public sealed class Board
         }
         return Result.Success();
     }
+
+    public Result<Card> AddCard(ColumnId columnId, string title, string? description, IClock clock)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        return column.AddCard(title, description, clock.UtcNow);
+    }
     #endregion
 }
 
