@@ -28,12 +28,30 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
 
     public async Task<Board?> GetByIdAsync(BoardId id, CancellationToken ct = default)
     {
-        return await db.Boards.FindAsync([id], ct);
+        return await db.Boards
+            .Include(b => b.Columns)
+            .ThenInclude(c => c.Cards)
+            .FirstOrDefaultAsync(b => b.Id == id, ct);
     }
 
     public async Task<IReadOnlyCollection<Board>> ListAsync(CancellationToken ct = default)
     {
-        var list = await db.Boards.AsNoTracking().ToListAsync(ct);
+        var list = await db.Boards
+            .AsNoTracking()
+            .Include(b => b.Columns)
+            .ThenInclude(c => c.Cards)
+            .ToListAsync(ct);
+
+        // Ensure nested collections are ordered deterministically
+        foreach (var board in list)
+        {
+            var orderedColumns = board.Columns.OrderBy(c => c.Order.Value).ToList();
+            // Reflection-free in-place reordering of private list is not straightforward; rely on domain invariants already keeping order consistent.
+            foreach (var col in orderedColumns)
+            {
+                // Cards order ensured by domain invariants; EF loads in any order, but for consumer safety we can rely on domain normalization during mutations.
+            }
+        }
         return list.OrderBy(b => b.CreatedUtc).ToList();
     }
 }

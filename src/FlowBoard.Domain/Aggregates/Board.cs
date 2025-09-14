@@ -156,6 +156,74 @@ public sealed class Board
             return Error.NotFound("Column.NotFound", "Column not found");
         return column.ReorderCard(cardId, newOrder);
     }
+
+    public Result ArchiveCard(ColumnId columnId, CardId cardId)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        var card = column.FindCard(cardId);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in column");
+        if (card.IsArchived)
+            return Result.Success(); // idempotent
+        card.Archive();
+        return Result.Success();
+    }
+
+    public Result RenameCard(ColumnId columnId, CardId cardId, string newTitle)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        var card = column.FindCard(cardId);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in column");
+        var titleResult = CardTitle.Create(newTitle);
+        if (titleResult.IsFailure)
+            return Result.Failure(titleResult.Errors);
+        if (card.Title.Value == titleResult.Value!.Value)
+            return Result.Success();
+        card.Rename(titleResult.Value!);
+        return Result.Success();
+    }
+
+    public Result ChangeCardDescription(ColumnId columnId, CardId cardId, string? newDescription)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        var card = column.FindCard(cardId);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in column");
+        var descResult = CardDescription.Create(newDescription);
+        if (descResult.IsFailure)
+            return Result.Failure(descResult.Errors);
+        if (card.Description.Value == descResult.Value!.Value)
+            return Result.Success();
+        card.ChangeDescription(descResult.Value!);
+        return Result.Success();
+    }
+
+    public Result SetColumnWipLimit(ColumnId columnId, int? newWipLimit)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        return column.SetWipLimit(newWipLimit);
+    }
+
+    public Result DeleteCard(ColumnId columnId, CardId cardId)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        var card = column.FindCard(cardId);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in column");
+        column.RemoveCard(card);
+        return Result.Success();
+    }
     #endregion
 }
 
