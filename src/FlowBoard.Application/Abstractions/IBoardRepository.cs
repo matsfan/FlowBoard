@@ -1,7 +1,7 @@
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.ValueObjects;
 
-namespace FlowBoard.Domain.Abstractions;
+namespace FlowBoard.Application.Abstractions;
 
 public interface IBoardRepository
 {

@@ -1,5 +1,5 @@
 using FastEndpoints;
-using FlowBoard.Domain.Abstractions;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.ValueObjects;
 
 namespace FlowBoard.WebApi.Endpoints.Boards;

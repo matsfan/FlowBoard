@@ -1,11 +1,12 @@
 using FlowBoard.Domain;
-using FlowBoard.Domain.Abstractions;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Infrastructure.Persistence.Ef;
 using FlowBoard.Infrastructure.Persistence.Ef.Repositories;
 using FlowBoard.Infrastructure.Persistence.InMemory;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using FlowBoard.Domain.Abstractions;
 
 namespace FlowBoard.Infrastructure.Services;
 

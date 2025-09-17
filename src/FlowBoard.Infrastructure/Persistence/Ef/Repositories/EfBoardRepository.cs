@@ -1,5 +1,5 @@
 using FlowBoard.Domain;
-using FlowBoard.Domain.Abstractions;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.ValueObjects;
 using FlowBoard.Infrastructure.Persistence.Ef;

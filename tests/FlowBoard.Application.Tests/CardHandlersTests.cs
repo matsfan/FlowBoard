@@ -1,6 +1,6 @@
 using FlowBoard.Application.UseCases.Cards.Commands;
 using FlowBoard.Application.UseCases.Cards.Handlers;
-using FlowBoard.Domain.Abstractions;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.ValueObjects;
 using FlowBoard.Domain;
@@ -63,8 +63,8 @@ public class CardHandlersTests
         var handler = new RenameCardHandler(_repo);
         var result = await handler.HandleAsync(new RenameCardCommand(board.Id.Value, colId.Value, cardId.Value, ""));
         Assert.True(result.IsFailure);
-    var err = Assert.Single(result.Errors);
-    Assert.Equal("Card.Title.Empty", err.Code);
+        var err = Assert.Single(result.Errors);
+        Assert.Equal("Card.Title.Empty", err.Code);
     }
 
     [Fact]

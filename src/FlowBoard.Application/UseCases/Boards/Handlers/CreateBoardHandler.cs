@@ -1,5 +1,6 @@
 using FlowBoard.Application.UseCases.Boards.Commands;
 using FlowBoard.Application.UseCases.Boards.Dtos;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.Primitives;

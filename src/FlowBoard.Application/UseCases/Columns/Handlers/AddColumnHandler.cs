@@ -1,6 +1,6 @@
 using FlowBoard.Application.UseCases.Columns.Commands;
 using FlowBoard.Application.UseCases.Columns.Dto;
-using FlowBoard.Domain.Abstractions;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 

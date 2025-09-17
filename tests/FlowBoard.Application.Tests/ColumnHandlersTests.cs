@@ -1,6 +1,6 @@
 using FlowBoard.Application.UseCases.Columns.Commands;
 using FlowBoard.Application.UseCases.Columns.Handlers;
-using FlowBoard.Domain.Abstractions;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain;
 using FlowBoard.Domain.ValueObjects;
@@ -87,8 +87,8 @@ public class ColumnHandlersTests
         _repo.GetByIdAsync(board.Id, Arg.Any<CancellationToken>()).Returns(board);
         var handler = new SetColumnWipLimitHandler(_repo);
         var result = await handler.HandleAsync(new SetColumnWipLimitCommand(board.Id.Value, col.Id.Value, 3));
-    Assert.True(result.IsSuccess);
-    Assert.True(col.WipLimit.HasValue && col.WipLimit.Value.Value == 3);
+        Assert.True(result.IsSuccess);
+        Assert.True(col.WipLimit.HasValue && col.WipLimit.Value.Value == 3);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class ColumnHandlersTests
         var handler = new SetColumnWipLimitHandler(_repo);
         var result = await handler.HandleAsync(new SetColumnWipLimitCommand(board.Id.Value, col.Id.Value, -1));
         Assert.True(result.IsFailure);
-    var err = Assert.Single(result.Errors);
-    Assert.Equal("Column.WipLimit.Invalid", err.Code);
+        var err = Assert.Single(result.Errors);
+        Assert.Equal("Column.WipLimit.Invalid", err.Code);
     }
 }
