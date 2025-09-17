@@ -171,6 +171,20 @@ public sealed class Board
         return Result.Success();
     }
 
+    public Result UnarchiveCard(ColumnId columnId, CardId cardId)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null)
+            return Error.NotFound("Column.NotFound", "Column not found");
+        var card = column.FindCard(cardId);
+        if (card is null)
+            return Error.NotFound("Card.NotFound", "Card not found in column");
+        if (!card.IsArchived)
+            return Result.Success(); // idempotent
+        card.Restore();
+        return Result.Success();
+    }
+
     public Result RenameCard(ColumnId columnId, CardId cardId, string newTitle)
     {
         var column = _columns.FirstOrDefault(c => c.Id == columnId);
