@@ -1,5 +1,5 @@
 using FlowBoard.Application.UseCases.Cards.Commands;
-using FlowBoard.Application.UseCases.Cards.Dtos;
+using FlowBoard.Application.UseCases.Cards.Dto;
 using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;

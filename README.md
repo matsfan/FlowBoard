@@ -81,5 +81,42 @@ Run tests:
 dotnet test src/FlowBoard.sln
 ```
 
+## API (Board / Column / Card)
+
+Base URL (dev): `http://localhost:5000` (or whatever Kestrel assigns). All routes shown relative.
+
+Boards:
+
+* `POST /boards` – create board `{ name }` → 201 with board dto
+* `GET /boards` – list boards → 200 `[ { id, name, createdUtc } ]`
+
+
+Columns:
+
+* `POST /boards/{boardId}/columns` – body: `{ name, wipLimit? }` → 201 `{ id, boardId, name, order, wipLimit }`
+* `POST /boards/{boardId}/columns/{columnId}/rename` – `{ name }` → 200
+* `POST /boards/{boardId}/columns/{columnId}/reorder` – `{ newOrder }` → 200
+* `POST /boards/{boardId}/columns/{columnId}/wip` – `{ wipLimit? }` (null clears) → 200
+
+
+Cards:
+
+* `POST /boards/{boardId}/columns/{columnId}/cards` – `{ title, description? }` → 201 `{ id, ... }`
+* `POST /boards/{boardId}/cards/{cardId}/move` – `{ fromColumnId, toColumnId, targetOrder }` → 200
+* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/reorder` – `{ newOrder }` → 200
+* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/archive` – 200 (idempotent)
+* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/rename` – `{ title }` → 200
+* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/description` – `{ description? }` → 200
+* `DELETE /boards/{boardId}/columns/{columnId}/cards/{cardId}` – 200
+
+
+Common failure response shape (FastEndpoints default) is a 400 with an `Errors` array; domain error codes include:
+ 
+* `Board.NotFound`, `Column.NotFound`, `Card.NotFound`
+* Validation: `Card.Title.Empty`, `Card.Title.TooLong`, `Column.WipLimit.Invalid`, `Column.WipLimit.Violation`, `Card.Move.InvalidOrder`
+* Conflict: `Column.WipLimit.Violation` when exceeding limit on move/add
+
+Restore (un-archive) card is intentionally NOT implemented yet; planned future slice.
+
 ---
 Keep README concise; expand only when developer onboarding friction appears.
