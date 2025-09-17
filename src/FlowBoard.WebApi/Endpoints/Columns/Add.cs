@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Columns.Commands;
-using FlowBoard.Application.UseCases.Columns.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Columns;
 
-public sealed class AddColumnEndpoint(AddColumnHandler handler) : Endpoint<AddColumnRequest, AddColumnResponse>
+public sealed class AddColumnEndpoint(IMediator mediator) : Endpoint<AddColumnRequest, AddColumnResponse>
 {
     public override void Configure()
     {
@@ -23,7 +23,7 @@ public sealed class AddColumnEndpoint(AddColumnHandler handler) : Endpoint<AddCo
             return;
         }
         req.BoardId = boardId;
-        var result = await handler.HandleAsync(new AddColumnCommand(req.BoardId, req.Name, req.WipLimit), ct);
+        var result = await mediator.Send(new AddColumnCommand(req.BoardId, req.Name, req.WipLimit), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

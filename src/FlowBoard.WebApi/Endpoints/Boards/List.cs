@@ -1,5 +1,5 @@
 using FastEndpoints;
-using FlowBoard.Application.UseCases.Boards.Handlers;
+using MediatR;
 using FlowBoard.Application.UseCases.Boards.Queries;
 
 namespace FlowBoard.WebApi.Endpoints.Boards;
@@ -16,7 +16,7 @@ public sealed class ListBoardsResponse
     }
 }
 
-public sealed class ListBoardsEndpoint(ListBoardsHandler handler) : EndpointWithoutRequest<ListBoardsResponse>
+public sealed class ListBoardsEndpoint(IMediator mediator) : EndpointWithoutRequest<ListBoardsResponse>
 {
     public override void Configure()
     {
@@ -31,7 +31,7 @@ public sealed class ListBoardsEndpoint(ListBoardsHandler handler) : EndpointWith
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        var result = await handler.HandleAsync(new ListBoardsQuery(), ct);
+        var result = await mediator.Send(new ListBoardsQuery(), ct);
         if (result.IsFailure)
         {
             // Should not normally fail; treat as 400 for consistency (validation) though no validation currently.

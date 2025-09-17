@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Cards.Commands;
-using FlowBoard.Application.UseCases.Cards.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Cards;
 
-public sealed class ArchiveCardEndpoint(ArchiveCardHandler handler) : Endpoint<ArchiveCardRequest>
+public sealed class ArchiveCardEndpoint(IMediator mediator) : Endpoint<ArchiveCardRequest>
 {
     public override void Configure()
     {
@@ -27,7 +27,7 @@ public sealed class ArchiveCardEndpoint(ArchiveCardHandler handler) : Endpoint<A
         req.BoardId = boardId;
         req.ColumnId = columnId;
         req.CardId = cardId;
-        var result = await handler.HandleAsync(new ArchiveCardCommand(req.BoardId, req.ColumnId, req.CardId), ct);
+        var result = await mediator.Send(new ArchiveCardCommand(req.BoardId, req.ColumnId, req.CardId), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

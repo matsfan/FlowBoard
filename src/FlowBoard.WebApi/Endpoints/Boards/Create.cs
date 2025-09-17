@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Boards.Commands;
-using FlowBoard.Application.UseCases.Boards.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Boards;
 
-public sealed class CreateBoardEndpoint(CreateBoardHandler handler) : Endpoint<CreateBoardRequest, CreateBoardResponse>
+public sealed class CreateBoardEndpoint(IMediator mediator) : Endpoint<CreateBoardRequest, CreateBoardResponse>
 {
     public override void Configure()
     {
@@ -19,7 +19,7 @@ public sealed class CreateBoardEndpoint(CreateBoardHandler handler) : Endpoint<C
 
     public override async Task HandleAsync(CreateBoardRequest req, CancellationToken ct)
     {
-        var result = await handler.HandleAsync(new CreateBoardCommand(req.Name), ct);
+        var result = await mediator.Send(new CreateBoardCommand(req.Name), ct);
         if (result.IsFailure)
         {
             // For simplicity treat validation/conflict as 400. Could differentiate 409.

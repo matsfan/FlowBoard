@@ -3,9 +3,11 @@ using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Columns.Handlers;
 
-public sealed class SetColumnWipLimitHandler(IBoardRepository repository)
+public sealed class SetColumnWipLimitHandler(IBoardRepository repository) : IRequestHandler<SetColumnWipLimitCommand, Result>
 {
     public async Task<Result> HandleAsync(SetColumnWipLimitCommand command, CancellationToken ct = default)
     {
@@ -18,4 +20,7 @@ public sealed class SetColumnWipLimitHandler(IBoardRepository repository)
         await repository.UpdateAsync(board, ct);
         return Result.Success();
     }
+
+    public Task<Result> Handle(SetColumnWipLimitCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }

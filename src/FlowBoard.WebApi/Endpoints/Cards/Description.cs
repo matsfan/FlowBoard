@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Cards.Commands;
-using FlowBoard.Application.UseCases.Cards.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Cards;
 
-public sealed class ChangeCardDescriptionEndpoint(ChangeCardDescriptionHandler handler) : Endpoint<ChangeDescriptionRequest>
+public sealed class ChangeCardDescriptionEndpoint(IMediator mediator) : Endpoint<ChangeDescriptionRequest>
 {
     public override void Configure()
     {
@@ -25,7 +25,7 @@ public sealed class ChangeCardDescriptionEndpoint(ChangeCardDescriptionHandler h
             return;
         }
         req.BoardId = boardId; req.ColumnId = columnId; req.CardId = cardId;
-        var result = await handler.HandleAsync(new ChangeCardDescriptionCommand(req.BoardId, req.ColumnId, req.CardId, req.Description), ct);
+        var result = await mediator.Send(new ChangeCardDescriptionCommand(req.BoardId, req.ColumnId, req.CardId, req.Description), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

@@ -3,9 +3,11 @@ using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Cards.Handlers;
 
-public sealed class RenameCardHandler(IBoardRepository repository)
+public sealed class RenameCardHandler(IBoardRepository repository) : IRequestHandler<RenameCardCommand, Result>
 {
     public async Task<Result> HandleAsync(RenameCardCommand command, CancellationToken ct = default)
     {
@@ -18,4 +20,7 @@ public sealed class RenameCardHandler(IBoardRepository repository)
         await repository.UpdateAsync(board, ct);
         return Result.Success();
     }
+
+    public Task<Result> Handle(RenameCardCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }

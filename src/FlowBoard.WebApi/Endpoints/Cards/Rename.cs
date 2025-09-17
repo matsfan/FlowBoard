@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Cards.Commands;
-using FlowBoard.Application.UseCases.Cards.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Cards;
 
-public sealed class RenameCardEndpoint(RenameCardHandler handler) : Endpoint<RenameCardRequest>
+public sealed class RenameCardEndpoint(IMediator mediator) : Endpoint<RenameCardRequest>
 {
     public override void Configure()
     {
@@ -25,7 +25,7 @@ public sealed class RenameCardEndpoint(RenameCardHandler handler) : Endpoint<Ren
             return;
         }
         req.BoardId = boardId; req.ColumnId = columnId; req.CardId = cardId;
-        var result = await handler.HandleAsync(new RenameCardCommand(req.BoardId, req.ColumnId, req.CardId, req.Title), ct);
+        var result = await mediator.Send(new RenameCardCommand(req.BoardId, req.ColumnId, req.CardId, req.Title), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

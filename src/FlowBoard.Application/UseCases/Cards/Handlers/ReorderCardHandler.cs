@@ -3,9 +3,11 @@ using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Cards.Handlers;
 
-public sealed class ReorderCardHandler(IBoardRepository repository)
+public sealed class ReorderCardHandler(IBoardRepository repository) : IRequestHandler<ReorderCardCommand, Result>
 {
     public async Task<Result> HandleAsync(ReorderCardCommand command, CancellationToken ct = default)
     {
@@ -18,4 +20,7 @@ public sealed class ReorderCardHandler(IBoardRepository repository)
         await repository.UpdateAsync(board, ct);
         return Result.Success();
     }
+
+    public Task<Result> Handle(ReorderCardCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }

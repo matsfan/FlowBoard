@@ -4,9 +4,11 @@ using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Columns.Handlers;
 
-public sealed class AddColumnHandler(IBoardRepository repository)
+public sealed class AddColumnHandler(IBoardRepository repository) : IRequestHandler<AddColumnCommand, Result<ColumnDto>>
 {
     public async Task<Result<ColumnDto>> HandleAsync(AddColumnCommand command, CancellationToken ct = default)
     {
@@ -22,4 +24,7 @@ public sealed class AddColumnHandler(IBoardRepository repository)
         var column = result.Value!;
         return new ColumnDto(column.Id.Value, column.Name.Value, column.Order.Value, column.WipLimit?.Value);
     }
+
+    public Task<Result<ColumnDto>> Handle(AddColumnCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }

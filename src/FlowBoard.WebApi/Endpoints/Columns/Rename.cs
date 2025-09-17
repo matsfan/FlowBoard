@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Columns.Commands;
-using FlowBoard.Application.UseCases.Columns.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Columns;
 
-public sealed class RenameColumnEndpoint(RenameColumnHandler handler) : Endpoint<RenameColumnRequest>
+public sealed class RenameColumnEndpoint(IMediator mediator) : Endpoint<RenameColumnRequest>
 {
     public override void Configure()
     {
@@ -25,7 +25,7 @@ public sealed class RenameColumnEndpoint(RenameColumnHandler handler) : Endpoint
         }
         req.BoardId = boardId;
         req.ColumnId = columnId;
-        var result = await handler.HandleAsync(new RenameColumnCommand(req.BoardId, req.ColumnId, req.Name), ct);
+        var result = await mediator.Send(new RenameColumnCommand(req.BoardId, req.ColumnId, req.Name), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

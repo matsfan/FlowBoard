@@ -3,9 +3,11 @@ using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Columns.Handlers;
 
-public sealed class RenameColumnHandler(IBoardRepository repository)
+public sealed class RenameColumnHandler(IBoardRepository repository) : IRequestHandler<RenameColumnCommand, Result>
 {
     public async Task<Result> HandleAsync(RenameColumnCommand command, CancellationToken ct = default)
     {
@@ -18,4 +20,7 @@ public sealed class RenameColumnHandler(IBoardRepository repository)
         await repository.UpdateAsync(board, ct);
         return Result.Success();
     }
+
+    public Task<Result> Handle(RenameColumnCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }

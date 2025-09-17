@@ -81,42 +81,93 @@ Run tests:
 dotnet test src/FlowBoard.sln
 ```
 
+## Using MediatR in FlowBoard
+
+This repo uses MediatR for application-level commands and queries. Handlers live in `src/FlowBoard.Application/UseCases/**/Handlers` and implement `IRequestHandler<TRequest, TResponse>`.
+
+- Commands: mutate state and return `Result` or `Result<TDto>` (see `CreateBoardCommand`, `AddCardCommand`).
+- Queries: read-only and return `Result<TDto>` collections or single DTOs (see `ListBoardsQuery`).
+
+Registration:
+
+- The Web API composition root registers MediatR once, scanning the Application assembly: see `src/FlowBoard.WebApi/Program.cs`.
+- Do not register handlers explicitly in DI; keep `ServiceRegistration` minimal.
+
+Endpoint pattern:
+
+- Inject `IMediator` into FastEndpoints endpoints and call `await mediator.Send(new YourCommand(...), ct)`.
+- Translate `Result` to HTTP in the endpoint (400 for domain/validation errors, 201/200 for success).
+
+Example (rename a card):
+
+```csharp
+public sealed class RenameCardEndpoint(IMediator mediator) : Endpoint<RenameCardRequest>
+{
+	public override void Configure()
+	{
+		Post("/boards/{boardId:guid}/columns/{columnId:guid}/cards/{cardId:guid}/rename");
+		Group<CardsGroup>();
+	}
+
+	public override async Task HandleAsync(RenameCardRequest req, CancellationToken ct)
+	{
+		// map route → command
+		req.BoardId = Route<Guid>("boardId");
+		req.ColumnId = Route<Guid>("columnId");
+		req.CardId = Route<Guid>("cardId");
+
+		var result = await mediator.Send(new RenameCardCommand(req.BoardId, req.ColumnId, req.CardId, req.Title), ct);
+		if (result.IsFailure)
+		{
+			AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));
+			await Send.ErrorsAsync(cancellation: ct);
+			return;
+		}
+		await Send.OkAsync(cancellation: ct);
+	}
+}
+```
+
+Add a new use case by:
+
+1. Creating a command or query record in `UseCases/<Area>/Commands|Queries` implementing `IRequest<Result|Result<T>>`.
+2. Implementing a handler in `UseCases/<Area>/Handlers` implementing `IRequestHandler<TRequest, Result|Result<T>>` and orchestrating the Domain.
+3. Calling it from a FastEndpoint via `IMediator`.
+
 ## API (Board / Column / Card)
 
 Base URL (dev): `http://localhost:5000` (or whatever Kestrel assigns). All routes shown relative.
 
 Boards:
 
-* `POST /boards` – create board `{ name }` → 201 with board dto
-* `GET /boards` – list boards → 200 `[ { id, name, createdUtc } ]`
-
+- `POST /boards` – create board `{ name }` → 201 with board dto
+- `GET /boards` – list boards → 200 `[ { id, name, createdUtc } ]`
 
 Columns:
 
-* `POST /boards/{boardId}/columns` – body: `{ name, wipLimit? }` → 201 `{ id, boardId, name, order, wipLimit }`
-* `POST /boards/{boardId}/columns/{columnId}/rename` – `{ name }` → 200
-* `POST /boards/{boardId}/columns/{columnId}/reorder` – `{ newOrder }` → 200
-* `POST /boards/{boardId}/columns/{columnId}/wip` – `{ wipLimit? }` (null clears) → 200
-
+- `POST /boards/{boardId}/columns` – body: `{ name, wipLimit? }` → 201 `{ id, boardId, name, order, wipLimit }`
+- `POST /boards/{boardId}/columns/{columnId}/rename` – `{ name }` → 200
+- `POST /boards/{boardId}/columns/{columnId}/reorder` – `{ newOrder }` → 200
+- `POST /boards/{boardId}/columns/{columnId}/wip` – `{ wipLimit? }` (null clears) → 200
 
 Cards:
 
-* `POST /boards/{boardId}/columns/{columnId}/cards` – `{ title, description? }` → 201 `{ id, ... }`
-* `POST /boards/{boardId}/cards/{cardId}/move` – `{ fromColumnId, toColumnId, targetOrder }` → 200
-* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/reorder` – `{ newOrder }` → 200
-* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/archive` – 200 (idempotent)
-* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/rename` – `{ title }` → 200
-* `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/description` – `{ description? }` → 200
-* `DELETE /boards/{boardId}/columns/{columnId}/cards/{cardId}` – 200
-
+- `POST /boards/{boardId}/columns/{columnId}/cards` – `{ title, description? }` → 201 `{ id, ... }`
+- `POST /boards/{boardId}/cards/{cardId}/move` – `{ fromColumnId, toColumnId, targetOrder }` → 200
+- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/reorder` – `{ newOrder }` → 200
+- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/archive` – 200 (idempotent)
+- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/rename` – `{ title }` → 200
+- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/description` – `{ description? }` → 200
+- `DELETE /boards/{boardId}/columns/{columnId}/cards/{cardId}` – 200
 
 Common failure response shape (FastEndpoints default) is a 400 with an `Errors` array; domain error codes include:
- 
-* `Board.NotFound`, `Column.NotFound`, `Card.NotFound`
-* Validation: `Card.Title.Empty`, `Card.Title.TooLong`, `Column.WipLimit.Invalid`, `Column.WipLimit.Violation`, `Card.Move.InvalidOrder`
-* Conflict: `Column.WipLimit.Violation` when exceeding limit on move/add
+
+- `Board.NotFound`, `Column.NotFound`, `Card.NotFound`
+- Validation: `Card.Title.Empty`, `Card.Title.TooLong`, `Column.WipLimit.Invalid`, `Column.WipLimit.Violation`, `Card.Move.InvalidOrder`
+- Conflict: `Column.WipLimit.Violation` when exceeding limit on move/add
 
 Restore (un-archive) card is intentionally NOT implemented yet; planned future slice.
 
 ---
+
 Keep README concise; expand only when developer onboarding friction appears.

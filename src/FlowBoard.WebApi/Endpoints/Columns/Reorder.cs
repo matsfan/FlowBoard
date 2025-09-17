@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Columns.Commands;
-using FlowBoard.Application.UseCases.Columns.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Columns;
 
-public sealed class ReorderColumnEndpoint(ReorderColumnHandler handler) : Endpoint<ReorderColumnRequest>
+public sealed class ReorderColumnEndpoint(IMediator mediator) : Endpoint<ReorderColumnRequest>
 {
     public override void Configure()
     {
@@ -25,7 +25,7 @@ public sealed class ReorderColumnEndpoint(ReorderColumnHandler handler) : Endpoi
         }
         req.BoardId = boardId;
         req.ColumnId = columnId;
-        var result = await handler.HandleAsync(new ReorderColumnCommand(req.BoardId, req.ColumnId, req.NewOrder), ct);
+        var result = await mediator.Send(new ReorderColumnCommand(req.BoardId, req.ColumnId, req.NewOrder), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

@@ -5,9 +5,11 @@ using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Cards.Handlers;
 
-public sealed class AddCardHandler(IBoardRepository repository, IClock clock)
+public sealed class AddCardHandler(IBoardRepository repository, IClock clock) : IRequestHandler<AddCardCommand, Result<CardDto>>
 {
     public async Task<Result<CardDto>> HandleAsync(AddCardCommand command, CancellationToken ct = default)
     {
@@ -23,4 +25,7 @@ public sealed class AddCardHandler(IBoardRepository repository, IClock clock)
         var card = addResult.Value!;
         return new CardDto(card.Id.Value, card.Title.Value, card.Description.Value, card.Order.Value, card.IsArchived, card.CreatedUtc);
     }
+
+    public Task<Result<CardDto>> Handle(AddCardCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }

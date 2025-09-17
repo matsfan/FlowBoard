@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Columns.Commands;
-using FlowBoard.Application.UseCases.Columns.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Columns;
 
-public sealed class SetColumnWipLimitEndpoint(SetColumnWipLimitHandler handler) : Endpoint<SetWipLimitRequest>
+public sealed class SetColumnWipLimitEndpoint(IMediator mediator) : Endpoint<SetWipLimitRequest>
 {
     public override void Configure()
     {
@@ -25,7 +25,7 @@ public sealed class SetColumnWipLimitEndpoint(SetColumnWipLimitHandler handler) 
         }
         req.BoardId = boardId;
         req.ColumnId = columnId;
-        var result = await handler.HandleAsync(new SetColumnWipLimitCommand(req.BoardId, req.ColumnId, req.WipLimit), ct);
+        var result = await mediator.Send(new SetColumnWipLimitCommand(req.BoardId, req.ColumnId, req.WipLimit), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

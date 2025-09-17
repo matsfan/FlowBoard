@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Cards.Commands;
-using FlowBoard.Application.UseCases.Cards.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Cards;
 
-public sealed class DeleteCardEndpoint(DeleteCardHandler handler) : EndpointWithoutRequest
+public sealed class DeleteCardEndpoint(IMediator mediator) : EndpointWithoutRequest
 {
     public override void Configure()
     {
@@ -24,7 +24,7 @@ public sealed class DeleteCardEndpoint(DeleteCardHandler handler) : EndpointWith
             await Send.ErrorsAsync(cancellation: ct);
             return;
         }
-        var result = await handler.HandleAsync(new DeleteCardCommand(boardId, columnId, cardId), ct);
+        var result = await mediator.Send(new DeleteCardCommand(boardId, columnId, cardId), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

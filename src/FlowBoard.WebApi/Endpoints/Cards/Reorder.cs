@@ -1,10 +1,10 @@
 using FastEndpoints;
 using FlowBoard.Application.UseCases.Cards.Commands;
-using FlowBoard.Application.UseCases.Cards.Handlers;
+using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Cards;
 
-public sealed class ReorderCardEndpoint(ReorderCardHandler handler) : Endpoint<ReorderCardRequest>
+public sealed class ReorderCardEndpoint(IMediator mediator) : Endpoint<ReorderCardRequest>
 {
     public override void Configure()
     {
@@ -32,7 +32,7 @@ public sealed class ReorderCardEndpoint(ReorderCardHandler handler) : Endpoint<R
         req.ColumnId = columnId;
         req.CardId = cardId;
 
-        var result = await handler.HandleAsync(new ReorderCardCommand(req.BoardId, req.ColumnId, req.CardId, req.NewOrder), ct);
+        var result = await mediator.Send(new ReorderCardCommand(req.BoardId, req.ColumnId, req.CardId, req.NewOrder), ct);
         if (result.IsFailure)
         {
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));

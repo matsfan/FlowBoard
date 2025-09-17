@@ -5,9 +5,11 @@ using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.Primitives;
 
+using MediatR;
+
 namespace FlowBoard.Application.UseCases.Boards.Handlers;
 
-public sealed class CreateBoardHandler(IBoardRepository repository, IClock clock)
+public sealed class CreateBoardHandler(IBoardRepository repository, IClock clock) : IRequestHandler<CreateBoardCommand, Result<BoardDto>>
 {
     public async Task<Result<BoardDto>> HandleAsync(CreateBoardCommand command, CancellationToken ct = default)
     {
@@ -23,4 +25,8 @@ public sealed class CreateBoardHandler(IBoardRepository repository, IClock clock
 
         return new BoardDto(board.Id.Value, board.Name.Value, board.CreatedUtc);
     }
+
+    // MediatR handler entrypoint
+    public Task<Result<BoardDto>> Handle(CreateBoardCommand request, CancellationToken cancellationToken)
+        => HandleAsync(request, cancellationToken);
 }
