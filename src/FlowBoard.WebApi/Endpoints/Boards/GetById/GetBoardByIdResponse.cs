@@ -1,6 +1,6 @@
-namespace FlowBoard.WebApi.Endpoints.Boards;
+namespace FlowBoard.WebApi.Endpoints.Boards.GetById;
 
-public sealed class CreateBoardResponse
+public sealed class GetBoardByIdResponse
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;

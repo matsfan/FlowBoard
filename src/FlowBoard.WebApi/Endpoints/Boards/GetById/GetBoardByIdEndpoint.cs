@@ -2,9 +2,9 @@ using FastEndpoints;
 using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.ValueObjects;
 
-namespace FlowBoard.WebApi.Endpoints.Boards;
+namespace FlowBoard.WebApi.Endpoints.Boards.GetById;
 
-public sealed class GetBoardEndpoint(IBoardRepository repository) : EndpointWithoutRequest<CreateBoardResponse>
+public sealed class GetBoardByIdEndpoint(IBoardRepository repository) : EndpointWithoutRequest<GetBoardByIdResponse>
 {
     public override void Configure()
     {
@@ -26,6 +26,6 @@ public sealed class GetBoardEndpoint(IBoardRepository repository) : EndpointWith
             await Send.NotFoundAsync(ct);
             return;
         }
-        await Send.OkAsync(new CreateBoardResponse { Id = board.Id.Value, Name = board.Name.Value, CreatedUtc = board.CreatedUtc }, ct);
+        await Send.OkAsync(new GetBoardByIdResponse { Id = board.Id.Value, Name = board.Name.Value, CreatedUtc = board.CreatedUtc }, ct);
     }
 }

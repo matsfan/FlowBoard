@@ -1,4 +1,4 @@
-namespace FlowBoard.WebApi.Endpoints.Boards;
+namespace FlowBoard.WebApi.Endpoints.Boards.Create;
 
 public sealed class CreateBoardRequest
 {

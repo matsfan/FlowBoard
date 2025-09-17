@@ -2,7 +2,7 @@ using FastEndpoints;
 using FlowBoard.Application.UseCases.Boards.Commands;
 using MediatR;
 
-namespace FlowBoard.WebApi.Endpoints.Boards;
+namespace FlowBoard.WebApi.Endpoints.Boards.Create;
 
 public sealed class CreateBoardEndpoint(IMediator mediator) : Endpoint<CreateBoardRequest, CreateBoardResponse>
 {
@@ -30,6 +30,6 @@ public sealed class CreateBoardEndpoint(IMediator mediator) : Endpoint<CreateBoa
 
         var dto = result.Value!;
         var response = new CreateBoardResponse { Id = dto.Id, Name = dto.Name, CreatedUtc = dto.CreatedUtc };
-        await Send.CreatedAtAsync<GetBoardEndpoint>(new { id = response.Id }, response, generateAbsoluteUrl: false, cancellation: ct);
+        await Send.CreatedAtAsync<CreateBoardEndpoint>(new { id = response.Id }, response, generateAbsoluteUrl: false, cancellation: ct);
     }
 }
