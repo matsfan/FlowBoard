@@ -417,3 +417,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 /src/FlowBoard.WebApi/flowboard.db
+
+.fake
