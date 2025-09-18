@@ -45,24 +45,3 @@ public sealed class UpdateCardEndpoint(IMediator mediator) : Endpoint<UpdateCard
         }, ct);
     }
 }
-
-public sealed class UpdateCardRequest
-{
-    public string Title { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public Guid ColumnId { get; set; } // Final column id (may differ from route column)
-    public int Order { get; set; }
-    public bool IsArchived { get; set; }
-}
-
-public sealed class UpdateCardResponse
-{
-    public Guid Id { get; set; }
-    public Guid BoardId { get; set; }
-    public Guid ColumnId { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public int Order { get; set; }
-    public bool IsArchived { get; set; }
-    public DateTimeOffset CreatedUtc { get; set; }
-}

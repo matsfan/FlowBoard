@@ -2,9 +2,9 @@ using FastEndpoints;
 using MediatR;
 using FlowBoard.Application.UseCases.Columns.Queries;
 
-namespace FlowBoard.WebApi.Endpoints.Columns.Get;
+namespace FlowBoard.WebApi.Endpoints.Columns.GetById;
 
-public sealed class GetColumnEndpoint(IMediator mediator) : EndpointWithoutRequest<GetColumnResponse>
+public sealed class GetColumnEndpoint(IMediator mediator) : EndpointWithoutRequest<GetColumnByIdResponse>
 {
     public override void Configure()
     {
@@ -23,8 +23,6 @@ public sealed class GetColumnEndpoint(IMediator mediator) : EndpointWithoutReque
             return;
         }
         var c = result.Value!;
-        await Send.OkAsync(new GetColumnResponse { Id = c.Id, Name = c.Name, Order = c.Order, WipLimit = c.WipLimit }, ct);
+        await Send.OkAsync(new GetColumnByIdResponse { Id = c.Id, Name = c.Name, Order = c.Order, WipLimit = c.WipLimit }, ct);
     }
 }
-
-public sealed class GetColumnResponse { public Guid Id { get; set; } public string Name { get; set; } = string.Empty; public int Order { get; set; } public int? WipLimit { get; set; } }

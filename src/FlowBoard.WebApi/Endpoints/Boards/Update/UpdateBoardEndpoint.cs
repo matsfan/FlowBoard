@@ -33,6 +33,3 @@ public sealed class UpdateBoardEndpoint(IMediator mediator) : Endpoint<UpdateBoa
         await Send.OkAsync(new UpdateBoardResponse { Id = dto.Id, Name = dto.Name, CreatedUtc = dto.CreatedUtc }, ct);
     }
 }
-
-public sealed class UpdateBoardRequest { public string Name { get; set; } = string.Empty; }
-public sealed class UpdateBoardResponse { public Guid Id { get; set; } public string Name { get; set; } = string.Empty; public DateTimeOffset CreatedUtc { get; set; } }

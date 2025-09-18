@@ -2,6 +2,8 @@
 
 Lean rules so an agent can add features safely and fast. This repo follows Clean Architecture, Domain‑Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and the REPR interaction flow. Keep edits inside these boundaries.
 
+NOTE (REST Commitment): The WebApi surface is intentionally constrained to conventional REST CRUD endpoints (POST, GET, PUT, DELETE) for Boards, Columns, and Cards. Previous fine‑grained action endpoints (e.g. `/rename`, `/reorder`, `/move`, `/wip`, `/archive`, `/description`) were removed. All such operations are expressed via full resource `PUT` updates (modifying name, order, columnId, isArchived, wipLimit, etc.) or `DELETE` for removal. Do NOT reintroduce verb/action endpoints; instead evolve the representation or (if strictly necessary) introduce a standardized partial update via `PATCH` after discussion.
+
 ### Architecture (DO NOT BREAK)
 
 Flow: WebApi → Application → Domain (Clean Architecture). Infrastructure is an implementation detail used by Web (and registered in DI) but Domain/Application never reference EF, FastEndpoints, or UI. ServiceDefaults supplies cross‑cutting telemetry/resilience.
@@ -24,6 +26,7 @@ Projects (inspect first):
 ### Core Conventions
 
 - Endpoints stay thin (< ~30 LOC). Example: `Endpoints/Boards/Create.cs` just: parse → call handler → translate `Result` to HTTP.
+- REST surface: Prefer evolving DTO shape over adding bespoke action endpoints.
 - All business decisions/invariants live in Domain or Application handler; never in endpoint or EF repo.
 - Use the `Result` / `Result<T>` pattern for expected failures (no throwing for flow control).
 - Never return EF entities or Domain objects directly from WebApi; map to DTOs in Application (see `CreateBoardHandler` producing `BoardDto`).
@@ -37,6 +40,7 @@ Projects (inspect first):
   - Endpoint is a pass‑through adapter.
   - Processor = Application handler.
   - Response is shaped DTO with appropriate HTTP codes.
+  - Action semantics (rename, reorder, move, archive, set WIP) occur inside handlers invoked by standard CRUD endpoints.
 
 ### Adding a Vertical Slice (Board-like example)
 

@@ -4,7 +4,7 @@ using FlowBoard.Application.UseCases.Cards.Queries;
 
 namespace FlowBoard.WebApi.Endpoints.Cards.Get;
 
-public sealed class GetCardEndpoint(IMediator mediator) : EndpointWithoutRequest<GetCardResponse>
+public sealed class GetCardEndpointById(IMediator mediator) : EndpointWithoutRequest<GetCardResponse>
 {
     public override void Configure()
     {
@@ -27,5 +27,3 @@ public sealed class GetCardEndpoint(IMediator mediator) : EndpointWithoutRequest
         await Send.OkAsync(new GetCardResponse { Id = c.Id, Title = c.Title, Description = c.Description, Order = c.Order, IsArchived = c.IsArchived, CreatedUtc = c.CreatedUtc, ColumnId = columnId, BoardId = boardId }, ct);
     }
 }
-
-public sealed class GetCardResponse { public Guid Id { get; set; } public Guid BoardId { get; set; } public Guid ColumnId { get; set; } public string Title { get; set; } = string.Empty; public string Description { get; set; } = string.Empty; public int Order { get; set; } public bool IsArchived { get; set; } public DateTimeOffset CreatedUtc { get; set; } }

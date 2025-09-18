@@ -34,6 +34,3 @@ public sealed class UpdateColumnEndpoint(IMediator mediator) : Endpoint<UpdateCo
         await Send.OkAsync(new UpdateColumnResponse { Id = dto.Id, Name = dto.Name, Order = dto.Order, WipLimit = dto.WipLimit }, ct);
     }
 }
-
-public sealed class UpdateColumnRequest { public string Name { get; set; } = string.Empty; public int Order { get; set; } public int? WipLimit { get; set; } }
-public sealed class UpdateColumnResponse { public Guid Id { get; set; } public string Name { get; set; } = string.Empty; public int Order { get; set; } public int? WipLimit { get; set; } }

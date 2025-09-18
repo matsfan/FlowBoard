@@ -98,35 +98,7 @@ Endpoint pattern:
 - Inject `IMediator` into FastEndpoints endpoints and call `await mediator.Send(new YourCommand(...), ct)`.
 - Translate `Result` to HTTP in the endpoint (400 for domain/validation errors, 201/200 for success).
 
-Example (rename a card):
-
-```csharp
-public sealed class RenameCardEndpoint(IMediator mediator) : Endpoint<RenameCardRequest>
-{
-	public override void Configure()
-	{
-		Post("/boards/{boardId:guid}/columns/{columnId:guid}/cards/{cardId:guid}/rename");
-		Group<CardsGroup>();
-	}
-
-	public override async Task HandleAsync(RenameCardRequest req, CancellationToken ct)
-	{
-		// map route → command
-		req.BoardId = Route<Guid>("boardId");
-		req.ColumnId = Route<Guid>("columnId");
-		req.CardId = Route<Guid>("cardId");
-
-		var result = await mediator.Send(new RenameCardCommand(req.BoardId, req.ColumnId, req.CardId, req.Title), ct);
-		if (result.IsFailure)
-		{
-			AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));
-			await Send.ErrorsAsync(cancellation: ct);
-			return;
-		}
-		await Send.OkAsync(cancellation: ct);
-	}
-}
-```
+// (Removed outdated fine-grained example after REST consolidation)
 
 Add a new use case by:
 
@@ -134,39 +106,61 @@ Add a new use case by:
 2. Implementing a handler in `UseCases/<Area>/Handlers` implementing `IRequestHandler<TRequest, Result|Result<T>>` and orchestrating the Domain.
 3. Calling it from a FastEndpoint via `IMediator`.
 
-## API (Board / Column / Card)
+## API (REST CRUD)
 
-Base URL (dev): `http://localhost:5000` (or whatever Kestrel assigns). All routes shown relative.
+The Web API now follows a conventional RESTful CRUD surface. Earlier fine‑grained mutation endpoints (e.g. `/rename`, `/reorder`, `/move`, `/wip`, `/archive`, `/description`) have been removed in favor of expressing state changes through standard `PUT` (full update) or `DELETE` (removal) requests. This keeps the transport surface small while Domain/Application layers still enforce rich invariants.
 
-Boards:
+Base URL (dev): `http://localhost:5000` (or whatever Kestrel assigns). Routes shown relative.
 
-- `POST /boards` – create board `{ name }` → 201 with board dto
-- `GET /boards` – list boards → 200 `[ { id, name, createdUtc } ]`
+### Boards
 
-Columns:
+- `POST /boards` – create `{ name }` → 201 returns `{ id, name, createdUtc }`
+- `GET /boards` – list → 200 `[ { id, name, createdUtc } ]`
+- `GET /boards/{boardId}` – fetch single → 200 `{ id, name, createdUtc }` or 404
+- `PUT /boards/{boardId}` – full update `{ name }` → 200 updated dto
 
-- `POST /boards/{boardId}/columns` – body: `{ name, wipLimit? }` → 201 `{ id, boardId, name, order, wipLimit }`
-- `POST /boards/{boardId}/columns/{columnId}/rename` – `{ name }` → 200
-- `POST /boards/{boardId}/columns/{columnId}/reorder` – `{ newOrder }` → 200
-- `POST /boards/{boardId}/columns/{columnId}/wip` – `{ wipLimit? }` (null clears) → 200
+### Columns
 
-Cards:
+- `POST /boards/{boardId}/columns` – create `{ name, wipLimit? }` → 201 `{ id, boardId, name, order, wipLimit }`
+- `GET /boards/{boardId}/columns` – list → 200 `[ { id, name, order, wipLimit } ]`
+- `GET /boards/{boardId}/columns/{columnId}` – fetch → 200 `{ id, name, order, wipLimit }`
+- `PUT /boards/{boardId}/columns/{columnId}` – full update `{ name, order, wipLimit? }` (null clears WIP limit) → 200 updated dto
 
-- `POST /boards/{boardId}/columns/{columnId}/cards` – `{ title, description? }` → 201 `{ id, ... }`
-- `POST /boards/{boardId}/cards/{cardId}/move` – `{ fromColumnId, toColumnId, targetOrder }` → 200
-- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/reorder` – `{ newOrder }` → 200
-- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/archive` – 200 (idempotent)
-- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/rename` – `{ title }` → 200
-- `POST /boards/{boardId}/columns/{columnId}/cards/{cardId}/description` – `{ description? }` → 200
-- `DELETE /boards/{boardId}/columns/{columnId}/cards/{cardId}` – 200
+### Cards
 
-Common failure response shape (FastEndpoints default) is a 400 with an `Errors` array; domain error codes include:
+- `POST /boards/{boardId}/columns/{columnId}/cards` – create `{ title, description? }` → 201 `{ id, title, description, order, isArchived, createdUtc, columnId, boardId }`
+- `GET /boards/{boardId}/columns/{columnId}/cards` – list cards in a column → 200 `[ ... ]`
+- `GET /boards/{boardId}/columns/{columnId}/cards/{cardId}` – fetch → 200 card dto
+- `PUT /boards/{boardId}/columns/{columnId}/cards/{cardId}` – full update. Body may change:
+  - `title`
+  - `description` (null/empty allowed)
+  - `columnId` (moving between columns)
+  - `order` (reordering within target column)
+  - `isArchived` (true to archive, false to unarchive)
+    Returns updated dto.
+- `DELETE /boards/{boardId}/columns/{columnId}/cards/{cardId}` – remove card → 200 (idempotent if already deleted/archive-delete semantics handled in Domain).
 
-- `Board.NotFound`, `Column.NotFound`, `Card.NotFound`
+### Error Handling
+
+All application/domain validation failures return HTTP 400 with FastEndpoints default problem shape (an `Errors` array). Typical domain codes:
+
+- Not Found: `Board.NotFound`, `Column.NotFound`, `Card.NotFound`
 - Validation: `Card.Title.Empty`, `Card.Title.TooLong`, `Column.WipLimit.Invalid`, `Column.WipLimit.Violation`, `Card.Move.InvalidOrder`
-- Conflict: `Column.WipLimit.Violation` when exceeding limit on move/add
 
-Restore (un-archive) card is intentionally NOT implemented yet; planned future slice.
+### Rationale for Consolidation
+
+| Concern                 | Old Style (Fine-Grained)       | New REST CRUD                           | Benefit                                        |
+| ----------------------- | ------------------------------ | --------------------------------------- | ---------------------------------------------- |
+| Rename / Reorder / Move | Separate verb-like POST routes | Express via single `PUT` with new state | Fewer endpoints; simpler client SDK generation |
+| Archive / Unarchive     | Custom `/archive` route        | `PUT` toggling `isArchived`             | Symmetric & discoverable                       |
+| Set/Clear WIP           | `/wip` route                   | `PUT` with `wipLimit` nullable          | Consistent update semantics                    |
+| Description edits       | Dedicated route                | Part of `PUT` body                      | Reduced chattiness                             |
+
+The domain model still distinguishes operations (and enforces rules like WIP limits and order recalculation); only the HTTP surface changed.
+
+### Partial vs Full Updates
+
+Currently `PUT` expects a complete representation for the resource fields we manage (name/order/wipLimit for columns; title/description/columnId/order/isArchived for cards). If partial updates become desirable, a `PATCH` style (JSON Patch or merge-patch) can be introduced later—avoiding overloading current `PUT`.
 
 ---
 

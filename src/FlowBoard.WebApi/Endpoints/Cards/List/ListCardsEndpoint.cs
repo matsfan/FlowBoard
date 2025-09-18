@@ -38,9 +38,3 @@ public sealed class ListCardsEndpoint(IMediator mediator) : EndpointWithoutReque
         await Send.OkAsync(response, ct);
     }
 }
-
-public sealed class ListCardsResponse
-{
-    public List<CardItem> Cards { get; set; } = [];
-    public sealed class CardItem { public Guid Id { get; set; } public string Title { get; set; } = string.Empty; public string Description { get; set; } = string.Empty; public int Order { get; set; } public bool IsArchived { get; set; } public DateTimeOffset CreatedUtc { get; set; } }
-}
