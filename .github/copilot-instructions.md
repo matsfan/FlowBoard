@@ -1,85 +1,56 @@
-## FlowBoard – Focused AI Contributor Guide
+## FlowBoard – AI Contributor Essentials
 
-Lean rules so an agent can add features safely and fast. This repo follows Clean Architecture, Domain‑Driven Design (DDD), Command Query Responsibility Segregation (CQRS), and the REPR interaction flow. Keep edits inside these boundaries.
+Purpose: Give an agent just enough project-specific context (Clean Architecture + DDD + CQRS + REPR) to ship a safe vertical slice fast.
 
-NOTE (REST Commitment): The WebApi surface is intentionally constrained to conventional REST CRUD endpoints (POST, GET, PUT, DELETE) for Boards, Columns, and Cards. Previous fine‑grained action endpoints (e.g. `/rename`, `/reorder`, `/move`, `/wip`, `/archive`, `/description`) were removed. All such operations are expressed via full resource `PUT` updates (modifying name, order, columnId, isArchived, wipLimit, etc.) or `DELETE` for removal. Do NOT reintroduce verb/action endpoints; instead evolve the representation or (if strictly necessary) introduce a standardized partial update via `PATCH` after discussion.
+### Immutable Commitments
 
-### Architecture (DO NOT BREAK)
+1. Layer flow: WebApi → Application → Domain. Infrastructure only plugged in via DI; Domain & Application never depend on EF, FastEndpoints, or web types.
+2. REST surface is pure CRUD (POST/GET/PUT/DELETE) on Boards, Columns, Cards. All rename/reorder/move/archive/WIP changes happen via full `PUT` resource updates (or future consensual `PATCH`). Never add verb/action endpoints.
+3. Domain + Application use the `Result` / `Result<T>` pattern for all expected failures (validation, not found, conflict). No throwing for control flow.
+4. Time via `IClock` only (see `SystemClock`).
 
-Flow: WebApi → Application → Domain (Clean Architecture). Infrastructure is an implementation detail used by Web (and registered in DI) but Domain/Application never reference EF, FastEndpoints, or UI. ServiceDefaults supplies cross‑cutting telemetry/resilience.
+### REPR Mapping
 
-Interaction model uses REPR: Request → Endpoint → Processor → Response.
+Request (DTO in Endpoint) → Endpoint (thin adapter) → Processor (Application handler) → Response (DTO). Example: `Endpoints/Boards/Create.cs` calls `CreateBoardHandler` returning `BoardDto`.
 
-- Request: HTTP/transport contract and validation.
-- Endpoint: Thin adapter that translates request → Application command/query and maps Result → HTTP.
-- Processor: Application handler (use case) invoking Domain aggregates and repositories.
-- Response: DTOs shaped for clients; never return domain entities directly.
+### Project Landmarks
 
-Projects (inspect first):
-
-- Domain (`src/FlowBoard.Domain`): DDD model (aggregates like `Aggregates/Board`), value objects, `Result` pattern (`Primitives/Result*`), repository contracts (`Abstractions/IBoardRepository`), time (`SystemClock` via `IClock`). No external library types. Business invariants live here.
-- Application (`src/FlowBoard.Application`): CQRS use cases under `UseCases/**` (e.g. `UseCases/Boards/Handlers/CreateBoardHandler.cs`), commands/queries (records), DTOs, DI (`Services/ServiceRegistration.cs`). Handlers orchestrate domain behavior and map to DTOs. Only Domain + BCL.
-- Infrastructure (`src/FlowBoard.Infrastructure`): EF Core + in‑memory persistence (`Data/FlowBoardDbContext.cs`, `Boards/EfBoardRepository.cs`, `Boards/InMemoryBoardRepository.cs`). Chooses implementation via `Persistence:UseInMemory` flag in `appsettings*`.
-- WebApi (`src/FlowBoard.WebApi`): FastEndpoints endpoints (`Endpoints/**`), composition root (`Program.cs`), Swagger. Endpoints implement the REPR adapter: parse input, call Application handler, translate `Result` to HTTP.
-- Tests (`tests/**`): Domain (no mocks), Application (NSubstitute), Infrastructure (in‑memory Sqlite), Architecture (dependency rules).
+Domain: `Aggregates/Board`, value objects (`ValueObjects/*`), result primitives (`Primitives/*`), contracts (`Abstractions/IBoardRepository.cs`).
+Application: Commands/Queries under `UseCases/**/Commands|Queries`, handlers in `UseCases/**/Handlers`, DTOs beside them, DI in `Services/ServiceRegistration.cs`.
+Infrastructure: EF + InMemory repos (`Boards/EfBoardRepository.cs`, `Boards/InMemoryBoardRepository.cs`), context `Data/FlowBoardDbContext.cs`.
+WebApi: FastEndpoints in `Endpoints/**`, composition root `Program.cs`.
+Tests: Architecture rules (`FlowBoard.Architecture.Tests`), Domain invariants, Application handler tests, Infrastructure EF tests.
 
 ### Core Conventions
 
-- Endpoints stay thin (< ~30 LOC). Example: `Endpoints/Boards/Create.cs` just: parse → call handler → translate `Result` to HTTP.
-- REST surface: Prefer evolving DTO shape over adding bespoke action endpoints.
-- All business decisions/invariants live in Domain or Application handler; never in endpoint or EF repo.
-- Use the `Result` / `Result<T>` pattern for expected failures (no throwing for flow control).
-- Never return EF entities or Domain objects directly from WebApi; map to DTOs in Application (see `CreateBoardHandler` producing `BoardDto`).
-- Time: request `IClock` (do not call `DateTime.UtcNow` directly) to keep tests deterministic.
-- CQRS separation:
-  - Commands change state and return minimal info or identifiers/DTOs.
-  - Queries do not change state and may read optimized projections.
-  - Do not mix command and query concerns in a single handler.
-- REPR adherence:
-  - Request contracts live at the edge (WebApi).
-  - Endpoint is a pass‑through adapter.
-  - Processor = Application handler.
-  - Response is shaped DTO with appropriate HTTP codes.
-  - Action semantics (rename, reorder, move, archive, set WIP) occur inside handlers invoked by standard CRUD endpoints.
+- Endpoint size target < ~30 LOC; zero business logic inside.
+- Map domain entities → DTOs only inside Application handlers.
+- Commands mutate; Queries read only—never mix.
+- Add new persistence ops by extending the Domain repository interface then implementing in BOTH EF + InMemory repos.
+- Keep order/WIP invariants enforced by aggregates (Board/Column); don’t “fix” ordering in repositories.
 
-### Adding a Vertical Slice (Board-like example)
+### Adding a Vertical Slice
 
-1. Domain (DDD): Add/extend aggregate or value objects; expose factory/behavior returning `Result` and enforcing invariants.
-2. Contract: Add/extend repository interface in Domain if new persistence operations needed.
-3. Application (CQRS): Create a command or query record + handler (async method returning `Result<Dto>` for commands or `Result<QueryDto>` for queries). Register in `Services/ServiceRegistration.cs`.
-4. Infrastructure: Implement repo changes in both `Ef...Repository` and `InMemory...Repository`; update `Data/FlowBoardDbContext.cs` mapping if needed.
-5. WebApi (REPR): Add FastEndpoint in `Endpoints/<Area>/` that binds the Request, calls the handler (Processor), and returns a Response (DTO) with proper HTTP status from the `Result`.
-6. Tests: Domain invariants (no mocks); Application handler tests using in‑memory repo substitute; Infrastructure tests (if mapping/data) with in‑memory Sqlite. Include both command and query tests when applicable.
+1. Domain: add/extend VO or aggregate behavior returning `Result` (e.g. adjust ordering or WIP validation). Update tests.
+2. Contract: extend `IBoardRepository` if new persistence semantics are required.
+3. Application: create command/query record + handler (async) returning `Result<Dto>`; map domain → DTO.
+4. Infrastructure: update EF model + both repositories; adjust `FlowBoardDbContext` mapping if needed.
+5. WebApi: add FastEndpoint (bind request ⇢ mediator/handler ⇢ translate `Result` to HTTP 200/201/400/404/409).
+6. Tests: Domain invariant tests, Application handler test (using InMemory repo or substitute), EF test if mapping changed.
 
-### Key Files To Model
+### Quick Commands
 
-`Board.cs`, `Result.cs`, `UseCases/Boards/Handlers/CreateBoardHandler.cs`, `Endpoints/Boards/Create.cs`, `Data/FlowBoardDbContext.cs`.
-Also see examples of CQRS and REPR mapping in `tests/FlowBoard.Application.Tests/*HandlerTests.cs` and `src/FlowBoard.WebApi/Endpoints/**`.
-
-### Persistence & Migrations
-
-Sqlite default file `flowboard.db` (connection: `ConnectionStrings:FlowBoard`). Create migration:
-`dotnet ef migrations add <Name> -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi`
-
-### Daily Commands
-
-Build: `dotnet build src/FlowBoard.sln`
+Build: `dotnet build src/FlowBoard.sln` | Tests: `dotnet test src/FlowBoard.sln`
 Run API: `dotnet run --project src/FlowBoard.WebApi/FlowBoard.WebApi.csproj`
-Run Web UI: `cd src/FlowBoard.WebApp && npm install && npm run dev` (Vite @ http://localhost:5173)
-Tests (all): `dotnet test src/FlowBoard.sln`
+Run Web UI: `cd src/FlowBoard.WebApp && npm install && npm run dev` (Vite @ 5173)
+Migration: `dotnet ef migrations add <Name> -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi`
 
-### Guardrails (Enforced / Expected)
+### Guardrails (Fail Arch Tests if broken)
 
-- No reverse dependencies (Arch tests will fail if broken).
-- Do not introduce external libs into Domain.
-- Preserve Result-based flow; handle errors at boundaries.
-- Keep endpoints deterministic & side‑effect free beyond delegating.
+- No upward (reverse) dependencies; respect layer boundaries.
+- No external libs in Domain; keep it pure.
+- Never expose Domain/EF types over HTTP.
+- Always use `IClock` + `Result`.
+- Don’t introduce side effects in endpoints beyond dispatching handlers.
 
-Additional guardrails for DDD/CQRS/REPR:
-
-- Keep aggregates persistence‑ignorant; do not inject DbContext or infrastructure types into Domain/Application.
-- Keep commands free of read‑heavy logic; prefer separate query handlers and projections where necessary.
-- Do not leak HTTP concepts into Application/Domain; WebApi translates to/from HTTP.
-- Maintain deterministic handlers by using `IClock` and repository abstractions.
-
-Need deeper detail (e.g. telemetry wiring, DTO mapping tips, performance)? Ask specifying the area and file you want expanded.
+Need deeper detail (telemetry, projections, performance)? Ask with the target file/area.

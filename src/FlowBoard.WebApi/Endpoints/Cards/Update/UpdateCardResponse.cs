@@ -1,6 +1,3 @@
-using FastEndpoints;
-using MediatR;
-using FlowBoard.Application.UseCases.Cards.Commands;
 
 namespace FlowBoard.WebApi.Endpoints.Cards.Update;
 

@@ -1,6 +1,6 @@
 using FastEndpoints;
 using MediatR;
-using FlowBoard.Application.UseCases.Boards.Commands;
+using FlowBoard.Application.UseCases.Boards.Update;
 
 namespace FlowBoard.WebApi.Endpoints.Boards.Update;
 

@@ -1,6 +1,6 @@
 using FastEndpoints;
 using MediatR;
-using FlowBoard.Application.UseCases.Columns.Commands;
+using FlowBoard.Application.UseCases.Columns.Update;
 
 namespace FlowBoard.WebApi.Endpoints.Columns.Update;
 

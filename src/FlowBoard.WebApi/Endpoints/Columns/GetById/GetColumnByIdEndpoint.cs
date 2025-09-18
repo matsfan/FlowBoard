@@ -1,6 +1,6 @@
 using FastEndpoints;
 using MediatR;
-using FlowBoard.Application.UseCases.Columns.Queries;
+using FlowBoard.Application.UseCases.Columns.GetById;
 
 namespace FlowBoard.WebApi.Endpoints.Columns.GetById;
 
@@ -16,7 +16,7 @@ public sealed class GetColumnEndpoint(IMediator mediator) : EndpointWithoutReque
     {
         var boardId = Route<Guid>("boardId");
         var columnId = Route<Guid>("columnId");
-        var result = await mediator.Send(new GetColumnQuery(boardId, columnId), ct);
+        var result = await mediator.Send(new GetColumnByIdQuery(boardId, columnId), ct);
         if (result.IsFailure)
         {
             await Send.NotFoundAsync(ct);

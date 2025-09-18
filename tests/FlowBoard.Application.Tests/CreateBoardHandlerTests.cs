@@ -1,6 +1,4 @@
-using FlowBoard.Application.UseCases.Boards.Commands;
-using FlowBoard.Application.UseCases.Boards.Handlers;
-using FlowBoard.Application.UseCases.Boards.Dtos;
+using FlowBoard.Application.UseCases.Boards.Create;
 using FlowBoard.Domain;
 using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Abstractions;

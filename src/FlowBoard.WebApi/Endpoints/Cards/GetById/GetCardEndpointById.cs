@@ -1,6 +1,6 @@
 using FastEndpoints;
 using MediatR;
-using FlowBoard.Application.UseCases.Cards.Queries;
+using FlowBoard.Application.UseCases.Cards.GetById;
 
 namespace FlowBoard.WebApi.Endpoints.Cards.Get;
 
@@ -17,7 +17,7 @@ public sealed class GetCardEndpointById(IMediator mediator) : EndpointWithoutReq
         var boardId = Route<Guid>("boardId");
         var columnId = Route<Guid>("columnId");
         var cardId = Route<Guid>("cardId");
-        var result = await mediator.Send(new GetCardQuery(boardId, columnId, cardId), ct);
+        var result = await mediator.Send(new GetCardByIdQuery(boardId, columnId, cardId), ct);
         if (result.IsFailure)
         {
             await Send.NotFoundAsync(ct);

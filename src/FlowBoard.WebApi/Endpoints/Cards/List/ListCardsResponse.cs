@@ -1,6 +1,5 @@
 using FastEndpoints;
 using MediatR;
-using FlowBoard.Application.UseCases.Cards.Queries;
 
 namespace FlowBoard.WebApi.Endpoints.Cards.List;
 
