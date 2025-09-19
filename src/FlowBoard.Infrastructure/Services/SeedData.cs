@@ -19,9 +19,9 @@ public static class SeedData
         if (boards.Count > 0) return; // already seeded
 
         // Board 1
-        var b1 = Board.Create("Demo Board", clock).Value!;
+        var b1 = Board.Create("My Board", clock).Value!;
         var col1 = b1.AddColumn("To Do", 5).Value!;
-        var col2 = b1.AddColumn("Doing", 3).Value!;
+        var col2 = b1.AddColumn("In Process", 3).Value!;
         var col3 = b1.AddColumn("Done").Value!;
         col1.AddCard("Task A", "First task", clock.UtcNow);
         col1.AddCard("Task B", null, clock.UtcNow);
