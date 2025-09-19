@@ -34,5 +34,21 @@ Quick commands
 - Run Web UI (Vite): `cd src/FlowBoard.WebApp && npm install && npm run dev` (dev at 5173; CORS allowed)
 - EF migrations: `dotnet ef migrations add <Name> -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi`
 
+Dev server hygiene (important)
+- Before starting servers, always check if the frontend (Vite) or backend (ASP.NET WebApi) is already running. If they are, kill them first to avoid port conflicts and orphan processes.
+- Default ports:
+	- WebApi: https 56157, http 56158 (see `src/FlowBoard.WebApi/Properties/launchSettings.json`)
+	- WebApp (Vite): 5173 by default (Vite may auto-switch to 5174+ if busy)
+- Windows PowerShell one-liners:
+	- Check and kill listeners on 5173/5174/56157/56158
+		- Use this pattern in automation before launches
+		- Example:
+			- `$ports=@(5173,5174,56157,56158); $conns=Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $ports -contains $_.LocalPort }; $ids=$conns | Select-Object -ExpandProperty OwningProcess -Unique; if($ids){ foreach($id in $ids){ try{ Stop-Process -Id $id -Force -ErrorAction Stop } catch {} } Start-Sleep -Seconds 1 }`
+	- Verify ports are free: `Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in 5173,5174,56157,56158 }`
+- Then start:
+	- WebApi: `dotnet run --project src/FlowBoard.WebApi/FlowBoard.WebApi.csproj`
+	- WebApp: from `src/FlowBoard.WebApp`: `npm run dev`
+		- If 5173 is reported busy, fix by killing the listener and starting again rather than letting Vite jump ports.
+
 Adding a slice (TL;DR)
 1) Domain behavior (return `Result`) → 2) Extend `IBoardRepository` if needed → 3) Command/Query + Handler returning `Result<Dto>` → 4) EF + InMemory repos + DbContext mapping → 5) Endpoint calling handler and mapping `Result` → HTTP → 6) Tests (domain + handler; EF if mapping changed).
