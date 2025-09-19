@@ -39,4 +39,10 @@ internal sealed class InMemoryBoardRepository : IBoardRepository
         IReadOnlyCollection<Board> list = _boards.Values.ToList();
         return Task.FromResult(list);
     }
+
+    public Task DeleteAsync(Board board, CancellationToken ct = default)
+    {
+        _boards.TryRemove(board.Id, out _);
+        return Task.CompletedTask;
+    }
 }

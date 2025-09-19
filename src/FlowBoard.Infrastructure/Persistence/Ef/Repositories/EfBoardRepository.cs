@@ -54,4 +54,10 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
         }
         return list.OrderBy(b => b.CreatedUtc).ToList();
     }
+
+    public async Task DeleteAsync(Board board, CancellationToken ct = default)
+    {
+        db.Boards.Remove(board);
+        await db.SaveChangesAsync(ct);
+    }
 }

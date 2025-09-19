@@ -10,4 +10,5 @@ public interface IBoardRepository
     Task UpdateAsync(Board board, CancellationToken ct = default);
     Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default); // keep string for query simplicity
     Task<IReadOnlyCollection<Board>> ListAsync(CancellationToken ct = default);
+    Task DeleteAsync(Board board, CancellationToken ct = default);
 }
