@@ -1,5 +1,7 @@
 <Project>
   <PropertyGroup>
+    <!-- Target framework for all projects -->
+    <TargetFramework>net9.0</TargetFramework>
     <!-- Ensure deterministic builds (helps consistent coverage) -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <!-- Exclude generated code folders from coverage if added later -->
