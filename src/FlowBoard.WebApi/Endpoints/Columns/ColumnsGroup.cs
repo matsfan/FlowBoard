@@ -6,7 +6,7 @@ public sealed class ColumnsGroup : Group
 {
 	public ColumnsGroup()
 	{
-		Configure("/", ep =>
+		Configure("columns", ep =>
 		{
 			ep.Description(d => d.WithGroupName("Columns"));
 		});

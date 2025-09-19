@@ -41,7 +41,7 @@ public sealed class Column
         return Result.Success();
     }
 
-    internal Result<Card> AddCard(string title, string? description, DateTimeOffset createdUtc)
+    public Result<Card> AddCard(string title, string? description, DateTimeOffset createdUtc)
     {
         if (WipLimit.HasValue && _cards.Count >= WipLimit.Value.Value)
             return Error.Conflict("Column.WipLimit.Violation", "WIP limit reached for this column");

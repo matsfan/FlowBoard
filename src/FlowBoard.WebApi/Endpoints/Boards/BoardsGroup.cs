@@ -6,7 +6,7 @@ public sealed class BoardsGroup : Group
 {
     public BoardsGroup()
     {
-        Configure("/", ep =>
+        Configure("boards", ep =>
         {
             ep.Description(x => x.WithGroupName("Boards"));
         });

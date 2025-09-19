@@ -14,7 +14,7 @@ export const CreateBoardForm: React.FC<Props> = ({ onCreated }) => {
     if (!name.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch('/api/boards', {
+      const res = await fetch('/api/boards/boards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name })

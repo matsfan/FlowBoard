@@ -62,7 +62,7 @@ export const BoardsPage: React.FC = () => {
   async function loadBoards() {
     setLoading(true);
     try {
-      const res = await fetch('/api/boards');
+  const res = await fetch('/api/boards/boards');
       if (!res.ok) throw new Error(`Error ${res.status}`);
       const data = await res.json();
       // API returns { boards: [...] }
@@ -91,7 +91,7 @@ export const BoardsPage: React.FC = () => {
         {loading && <p className="text-sm text-slate-500">Loading...</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
         {!loading && !boards.length && <p className="text-sm text-slate-500">No boards yet</p>}
-        <ListBoards boards={boards} />
+  <ListBoards boards={boards} onDeleted={loadBoards} />
       </section>
     </div>
   );

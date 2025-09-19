@@ -36,7 +36,17 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 var app = builder.Build();
+
+// Seed demo data (boards, columns, cards) only in Development
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        await SeedData.EnsureSeededAsync(scope.ServiceProvider);
+    }
+}
 
 app.MapDefaultEndpoints();
 

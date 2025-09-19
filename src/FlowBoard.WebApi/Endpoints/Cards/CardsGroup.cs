@@ -6,7 +6,7 @@ public sealed class CardsGroup : Group
 {
     public CardsGroup()
     {
-        Configure("/", ep =>
+        Configure("cards", ep =>
         {
             ep.Description(d => d.WithGroupName("Cards"));
         });
