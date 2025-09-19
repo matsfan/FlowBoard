@@ -10,6 +10,7 @@ public sealed class GetBoardByIdEndpoint(IBoardRepository repository) : Endpoint
     {
         Get("/boards/{id:guid}");
         Group<BoardsGroup>();
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)
