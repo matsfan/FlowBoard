@@ -19,6 +19,9 @@ builder.Services.SwaggerDocument(o =>
     };
 });
 
+// Add Authorization
+builder.Services.AddAuthorization();
+
 // Layer registrations
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
@@ -54,6 +57,8 @@ app.UseHttpsRedirection();
 
 // Apply CORS (before endpoints)
 app.UseCors(DevCorsPolicy);
+
+app.UseAuthorization();
 
 app.UseFastEndpoints();
 app.UseSwaggerGen();

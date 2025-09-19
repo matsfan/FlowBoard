@@ -10,6 +10,7 @@ public sealed class ListBoardsEndpoint(IMediator mediator) : EndpointWithoutRequ
     {
         Get("/boards");
         Group<BoardsGroup>();
+        AllowAnonymous();
         Summary(s =>
         {
             s.Summary = "List all boards";
