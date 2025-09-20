@@ -1,10 +1,8 @@
 using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
-using MediatR;
 
 namespace FlowBoard.Application.UseCases.Boards.GetById;
-
 public sealed class GetBoardByIdHandler(IBoardRepository repository) : IRequestHandler<GetBoardByIdQuery, Result<BoardDto>>
 {
     public async Task<Result<BoardDto>> Handle(GetBoardByIdQuery request, CancellationToken cancellationToken)

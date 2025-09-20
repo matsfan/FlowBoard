@@ -1,5 +1,4 @@
 using FastEndpoints;
-using MediatR;
 
 namespace FlowBoard.WebApi.Endpoints.Cards.List;
 
