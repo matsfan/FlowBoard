@@ -3,8 +3,6 @@ using FastEndpoints.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using FlowBoard.Application.Services;
 using FlowBoard.Infrastructure.Services;
-using MediatR;
-using FlowBoard.Application.UseCases.Boards.Create; // marker for MediatR assembly scan
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,8 +24,6 @@ builder.Services.AddAuthorization();
 // Layer registrations
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
-// MediatR - register handlers from the Application assembly
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<CreateBoardHandler>());
 // CORS for local WebApp (Vite dev server)
 const string DevCorsPolicy = "DevCors";
 builder.Services.AddCors(options =>

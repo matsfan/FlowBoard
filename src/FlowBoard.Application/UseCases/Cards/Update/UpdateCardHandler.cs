@@ -1,7 +1,6 @@
 using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
-using MediatR;
 
 namespace FlowBoard.Application.UseCases.Cards.Update;
 

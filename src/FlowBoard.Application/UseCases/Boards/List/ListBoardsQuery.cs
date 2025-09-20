@@ -1,4 +1,4 @@
-using MediatR;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 
 namespace FlowBoard.Application.UseCases.Boards.List;

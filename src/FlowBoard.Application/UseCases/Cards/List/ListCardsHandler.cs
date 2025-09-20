@@ -1,10 +1,8 @@
 using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
-using MediatR;
 
 namespace FlowBoard.Application.UseCases.Cards.List;
-
 public sealed class ListCardsHandler(IBoardRepository repository) : IRequestHandler<ListCardsQuery, Result<IReadOnlyCollection<CardDto>>>
 {
     public async Task<Result<IReadOnlyCollection<CardDto>>> Handle(ListCardsQuery request, CancellationToken cancellationToken)
