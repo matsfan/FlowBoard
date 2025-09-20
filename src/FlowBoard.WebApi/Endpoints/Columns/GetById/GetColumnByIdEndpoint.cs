@@ -1,5 +1,5 @@
 using FastEndpoints;
-using MediatR;
+using FlowBoard.Application.Abstractions;
 using FlowBoard.Application.UseCases.Columns.GetById;
 
 namespace FlowBoard.WebApi.Endpoints.Columns.GetById;

@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FlowBoard.Application\FlowBoard.Application.csproj" />
     <ProjectReference Include="..\..\src\FlowBoard.Domain\FlowBoard.Domain.csproj" />
+    <ProjectReference Include="..\..\src\FlowBoard.Infrastructure\FlowBoard.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

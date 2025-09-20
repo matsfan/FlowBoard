@@ -1,5 +1,5 @@
 using FlowBoard.Domain.Primitives;
-using MediatR;
+using FlowBoard.Application.Abstractions;
 
 namespace FlowBoard.Application.UseCases.Columns.List;
 

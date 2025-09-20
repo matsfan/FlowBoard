@@ -89,29 +89,33 @@ Run tests:
 dotnet test src/FlowBoard.sln
 ```
 
-## Using MediatR in FlowBoard
+## Using Custom Mediator in FlowBoard
 
-This repo uses MediatR for application-level commands and queries. Handlers live in `src/FlowBoard.Application/UseCases/**/Handlers` and implement `IRequestHandler<TRequest, TResponse>`.
+This repo uses a custom mediator implementation for application-level commands and queries. Handlers live in `src/FlowBoard.Application/UseCases/**/` and implement `IRequestHandler<TRequest, TResponse>`.
 
 - Commands: mutate state and return `Result` or `Result<TDto>` (see `CreateBoardCommand`, `AddCardCommand`).
 - Queries: read-only and return `Result<TDto>` collections or single DTOs (see `ListBoardsQuery`).
 
 Registration:
 
-- The Web API composition root registers MediatR once, scanning the Application assembly: see `src/FlowBoard.WebApi/Program.cs`.
-- Do not register handlers explicitly in DI; keep `ServiceRegistration` minimal.
+- The custom mediator is registered in the Application layer's `ServiceRegistration.cs`, which automatically discovers and registers all handlers.
+- The Web API composition root calls `AddApplicationServices()` to register the mediator and handlers: see `src/FlowBoard.WebApi/Program.cs`.
 
 Endpoint pattern:
 
 - Inject `IMediator` into FastEndpoints endpoints and call `await mediator.Send(new YourCommand(...), ct)`.
 - Translate `Result` to HTTP in the endpoint (400 for domain/validation errors, 201/200 for success).
 
-// (Removed outdated fine-grained example after REST consolidation)
+Custom Mediator Implementation:
+
+- **Interfaces**: `IRequest<TResponse>`, `IRequestHandler<TRequest, TResponse>`, and `IMediator` in `src/FlowBoard.Application/Abstractions/`
+- **Implementation**: Simple reflection-based mediator in `src/FlowBoard.Application/Services/Mediator.cs`
+- **Benefits**: No external dependencies, no licensing costs, full control over the implementation
 
 Add a new use case by:
 
-1. Creating a command or query record in `UseCases/<Area>/Commands|Queries` implementing `IRequest<Result|Result<T>>`.
-2. Implementing a handler in `UseCases/<Area>/Handlers` implementing `IRequestHandler<TRequest, Result|Result<T>>` and orchestrating the Domain.
+1. Creating a command or query record in `UseCases/<Area>/` implementing `IRequest<Result|Result<T>>`.
+2. Implementing a handler in `UseCases/<Area>/` implementing `IRequestHandler<TRequest, Result|Result<T>>` and orchestrating the Domain.
 3. Calling it from a FastEndpoint via `IMediator`.
 
 ## API (REST CRUD)

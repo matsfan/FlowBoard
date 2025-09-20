@@ -1,10 +1,8 @@
 using FlowBoard.Application.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
-using MediatR;
 
 namespace FlowBoard.Application.UseCases.Columns.List;
-
 public sealed class ListColumnsHandler(IBoardRepository repository) : IRequestHandler<ListColumnsQuery, Result<IReadOnlyCollection<ColumnDto>>>
 {
     public async Task<Result<IReadOnlyCollection<ColumnDto>>> Handle(ListColumnsQuery request, CancellationToken cancellationToken)
