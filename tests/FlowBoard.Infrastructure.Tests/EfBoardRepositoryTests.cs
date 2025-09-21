@@ -1,5 +1,6 @@
 using FlowBoard.Domain;
 using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.ValueObjects;
 using FlowBoard.Infrastructure.Persistence.Ef;
 using FlowBoard.Infrastructure.Persistence.Ef.Repositories;
 using Microsoft.Data.Sqlite;
@@ -27,8 +28,9 @@ public class EfBoardRepositoryTests
         await using var ctx = CreateContext(connection);
         var repo = new EfBoardRepository(ctx);
         var clock = new SystemClock();
+        var userId = UserId.New();
 
-        var created = Board.Create("Infra EF Board", clock);
+        var created = Board.Create("Infra EF Board", userId, clock);
         Assert.True(created.IsSuccess);
         await repo.AddAsync(created.Value!);
 
@@ -45,10 +47,11 @@ public class EfBoardRepositoryTests
         await using var ctx = CreateContext(connection);
         var repo = new EfBoardRepository(ctx);
         var clock = new SystemClock();
+        var userId = UserId.New();
 
-        var b1 = Board.Create("Alpha", clock).Value!;
+        var b1 = Board.Create("Alpha", userId, clock).Value!;
         await repo.AddAsync(b1);
-        var b2 = Board.Create("Beta", clock).Value!;
+        var b2 = Board.Create("Beta", userId, clock).Value!;
         await repo.AddAsync(b2);
 
         var list = await repo.ListAsync();

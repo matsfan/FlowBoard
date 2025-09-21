@@ -1,6 +1,7 @@
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Infrastructure.Persistence.InMemory;
 using FlowBoard.Domain;
+using FlowBoard.Domain.ValueObjects;
 
 namespace FlowBoard.Infrastructure.Tests;
 
@@ -11,7 +12,8 @@ public class InMemoryBoardRepositoryTests
     {
     var repository = new InMemoryBoardRepository();
         var clock = new SystemClock();
-        var board = Board.Create("Board", clock).Value!;
+        var userId = UserId.New();
+        var board = Board.Create("Board", userId, clock).Value!;
     await repository.AddAsync(board);
     var loaded = await repository.GetByIdAsync(board.Id);
         Assert.NotNull(loaded);
@@ -22,7 +24,8 @@ public class InMemoryBoardRepositoryTests
     {
     var repository = new InMemoryBoardRepository();
         var clock = new SystemClock();
-        var board = Board.Create("Board", clock).Value!;
+        var userId = UserId.New();
+        var board = Board.Create("Board", userId, clock).Value!;
     await repository.AddAsync(board);
     Assert.True(await repository.ExistsByNameAsync("board"));
     }
@@ -32,9 +35,10 @@ public class InMemoryBoardRepositoryTests
     {
     var repository = new InMemoryBoardRepository();
         var clock = new SystemClock();
-        var board = Board.Create("Board", clock).Value!;
+        var userId = UserId.New();
+        var board = Board.Create("Board", userId, clock).Value!;
     await repository.AddAsync(board);
-        board.Rename("Renamed");
+        board.Rename("Renamed", userId);
     await repository.UpdateAsync(board);
     var loaded = await repository.GetByIdAsync(board.Id);
         Assert.Equal("Renamed", loaded!.Name.Value);
@@ -45,8 +49,9 @@ public class InMemoryBoardRepositoryTests
     {
     var repository = new InMemoryBoardRepository();
         var clock = new SystemClock();
-    await repository.AddAsync(Board.Create("A", clock).Value!);
-    await repository.AddAsync(Board.Create("B", clock).Value!);
+        var userId = UserId.New();
+    await repository.AddAsync(Board.Create("A", userId, clock).Value!);
+    await repository.AddAsync(Board.Create("B", userId, clock).Value!);
     var list = await repository.ListAsync();
         Assert.Equal(2, list.Count);
     }

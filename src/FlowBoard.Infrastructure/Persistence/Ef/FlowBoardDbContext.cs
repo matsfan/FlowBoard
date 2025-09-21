@@ -127,8 +127,8 @@ public sealed class FlowBoardDbContext(DbContextOptions<FlowBoardDbContext> opti
                 mb.Property<int>("InternalId");
                 mb.HasKey("InternalId");
                 
-                // Ensure uniqueness of User per Board
-                mb.HasIndex("BoardId", "UserId").IsUnique();
+                // Ensure uniqueness of User per Board - use the correct property name
+                mb.HasIndex("BoardId", "Id").IsUnique();
                 
                 mb.ToTable("BoardMembers");
             });
