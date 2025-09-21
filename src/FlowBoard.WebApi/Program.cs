@@ -23,7 +23,7 @@ builder.Services.AddAuthorization();
 
 // Layer registrations
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 // CORS for local WebApp (Vite dev server)
 const string DevCorsPolicy = "DevCors";
 builder.Services.AddCors(options =>

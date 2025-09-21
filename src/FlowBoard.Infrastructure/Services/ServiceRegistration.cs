@@ -20,12 +20,15 @@ public static class ServiceRegistration
         var raw = configuration?["Persistence:UseInMemory"];
         if (bool.TryParse(raw, out var parsed)) useInMemory = parsed;
         
-        // Check multiple ways to detect test environment
+        // Check for test environment more precisely
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         var isTestEnvironment = environment == "Testing" || 
                                configuration?["Environment"] == "Testing" ||
+                               // Only consider as test if we're running from a test assembly (not just any assembly with "Test" in name)
                                AppDomain.CurrentDomain.GetAssemblies()
-                                   .Any(a => a.GetName().Name?.Contains("Test") == true);
+                                   .Any(a => a.FullName?.StartsWith("Microsoft.TestPlatform") == true ||
+                                            a.FullName?.StartsWith("xunit") == true ||
+                                            a.FullName?.StartsWith("NUnit") == true);
         
         if (isTestEnvironment)
         {

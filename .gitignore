@@ -422,3 +422,4 @@ FodyWeavers.xsd
 src/FlowBoard.WebApi/flowboard.db-wal
 src/FlowBoard.WebApi/flowboard.db-shm
 src/FlowBoard.WebApi/flowboard.db-shm
+src/FlowBoard.WebApi/flowboard.dev.db
