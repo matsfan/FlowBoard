@@ -57,7 +57,7 @@ public class CardsEndpointsTests : IClassFixture<WebApiTestFactory>
         var response = await _client.PostAsync($"/boards/{boardId}/columns/{columnId}/cards", content);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var responseContent = await response.Content.ReadAsStringAsync();
         var card = JsonSerializer.Deserialize<JsonElement>(responseContent);
         Assert.Equal("Test Card", card.GetProperty("title").GetString());
