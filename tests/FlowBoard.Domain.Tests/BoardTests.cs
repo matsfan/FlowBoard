@@ -28,7 +28,7 @@ public class BoardTests
     {
         var now = DateTimeOffset.UtcNow;
         var clock = new TestClock(now);
-        var result = Board.Create("My Board", clock);
+        var result = Board.Create("My Board", TestUserId, clock);
         Assert.True(result.IsSuccess);
         Assert.Equal("My Board", result.Value!.Name.Value);
         Assert.Equal(now, result.Value.CreatedUtc);
@@ -38,8 +38,8 @@ public class BoardTests
     public void Rename_Valid()
     {
         var clock = new TestClock(DateTimeOffset.UtcNow);
-        var board = Board.Create("Name", clock).Value!;
-        var rename = board.Rename("New Name");
+        var board = Board.Create("Name", TestUserId, clock).Value!;
+        var rename = board.Rename("New Name", TestUserId);
         Assert.True(rename.IsSuccess);
         Assert.Equal("New Name", board.Name.Value);
     }

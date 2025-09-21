@@ -7,6 +7,7 @@ using FlowBoard.Application.UseCases.Boards.List;
 using FlowBoard.Domain.Abstractions;
 using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.ValueObjects;
 using NSubstitute;
 
 namespace FlowBoard.Application.Tests;
@@ -27,14 +28,17 @@ public class CustomMediatorTests : IDisposable
         // Add mocked dependencies
         _mockRepository = Substitute.For<IBoardRepository>();
         _mockClock = Substitute.For<IClock>();
+        var mockUserContext = Substitute.For<IUserContext>();
         
         services.AddSingleton(_mockRepository);
         services.AddSingleton(_mockClock);
+        services.AddSingleton(mockUserContext);
         
         _serviceProvider = services.BuildServiceProvider();
         
-        // Setup clock
+        // Setup clock and user context
         _mockClock.UtcNow.Returns(DateTimeOffset.UnixEpoch);
+        mockUserContext.CurrentUserId.Returns(new UserId(Guid.Parse("550e8400-e29b-41d4-a716-446655440000")));
     }
     
     [Fact]
