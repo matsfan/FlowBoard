@@ -22,6 +22,9 @@ public sealed class FlowBoardDbContext(DbContextOptions<FlowBoardDbContext> opti
         var cardIdConverter = new ValueConverter<CardId, Guid>(
             id => id.Value,
             value => new CardId(value));
+        var userIdConverter = new ValueConverter<UserId, Guid>(
+            id => id.Value,
+            value => new UserId(value));
         var orderIndexConverter = new ValueConverter<OrderIndex, int>(
             o => o.Value,
             v => new OrderIndex(v));
@@ -100,6 +103,34 @@ public sealed class FlowBoardDbContext(DbContextOptions<FlowBoardDbContext> opti
                 });
 
                 cb.ToTable("Columns");
+            });
+
+            // BoardMembers mapping
+            b.OwnsMany(x => x.Members, mb =>
+            {
+                // Each BoardMember row references its owning Board via BoardId
+                mb.WithOwner().HasForeignKey("BoardId");
+                
+                // Configure the UserId property
+                mb.Property(m => m.Id)
+                    .HasConversion(userIdConverter)
+                    .HasColumnName("UserId")
+                    .IsRequired();
+                    
+                mb.Property(m => m.Role)
+                    .HasConversion<int>()
+                    .IsRequired();
+                    
+                mb.Property(m => m.JoinedAt).IsRequired();
+                
+                // Use auto-generated ID for simplicity
+                mb.Property<int>("InternalId");
+                mb.HasKey("InternalId");
+                
+                // Ensure uniqueness of User per Board
+                mb.HasIndex("BoardId", "UserId").IsUnique();
+                
+                mb.ToTable("BoardMembers");
             });
         });
     }
