@@ -9,7 +9,7 @@ public sealed class UpdateCardEndpoint(IMediator mediator) : Endpoint<UpdateCard
     public override void Configure()
     {
         Put("/boards/{boardId:guid}/columns/{columnId:guid}/cards/{cardId:guid}");
-        Group<CardsGroup>();
+        AllowAnonymous();
         Summary(s => { s.Summary = "Update card"; s.Description = "Full replacement update of a card."; });
     }
 

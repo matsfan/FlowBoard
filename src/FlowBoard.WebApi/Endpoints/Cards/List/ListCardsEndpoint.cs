@@ -9,7 +9,7 @@ public sealed class ListCardsEndpoint(IMediator mediator) : EndpointWithoutReque
     public override void Configure()
     {
         Get("/boards/{boardId:guid}/columns/{columnId:guid}/cards");
-        Group<CardsGroup>();
+        AllowAnonymous();
         Summary(s => { s.Summary = "List cards"; s.Description = "Lists all cards in a column"; });
     }
 

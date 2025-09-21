@@ -9,7 +9,7 @@ public sealed class GetCardEndpointById(IMediator mediator) : EndpointWithoutReq
     public override void Configure()
     {
         Get("/boards/{boardId:guid}/columns/{columnId:guid}/cards/{cardId:guid}");
-        Group<CardsGroup>();
+        AllowAnonymous();
     }
 
     public override async Task HandleAsync(CancellationToken ct)

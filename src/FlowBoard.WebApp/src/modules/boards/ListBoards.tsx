@@ -13,7 +13,7 @@ export const ListBoards: React.FC<Props> = ({ boards, onDeleted }) => {
     if (!window.confirm('Delete this board? This action cannot be undone.')) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/boards/boards/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/boards/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       if (onDeleted) onDeleted();
     } catch (e) {

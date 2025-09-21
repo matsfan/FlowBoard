@@ -37,7 +37,7 @@ export const CardModal: React.FC<Props> = ({ isOpen, onClose, card, columnId, bo
     try {
       if (card) {
         // Update existing card
-        const response = await fetch(`/api/boards/boards/${boardId}/columns/${columnId}/cards/${card.id}`, {
+        const response = await fetch(`/api/boards/${boardId}/columns/${columnId}/cards/${card.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -54,7 +54,7 @@ export const CardModal: React.FC<Props> = ({ isOpen, onClose, card, columnId, bo
         }
       } else {
         // Create new card
-        const response = await fetch(`/api/boards/boards/${boardId}/columns/${columnId}/cards`, {
+        const response = await fetch(`/api/boards/${boardId}/columns/${columnId}/cards`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

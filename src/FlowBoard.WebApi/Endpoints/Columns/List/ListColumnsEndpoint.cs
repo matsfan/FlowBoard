@@ -8,7 +8,7 @@ public sealed class ListColumnsEndpoint(IMediator mediator) : EndpointWithoutReq
 {
     public override void Configure()
     {
-        Get("/boards/boards/{boardId:guid}/columns");
+        Get("/boards/{boardId:guid}/columns");
         AllowAnonymous();
         Summary(s => { s.Summary = "List columns"; s.Description = "Lists all columns for a board"; });
     }

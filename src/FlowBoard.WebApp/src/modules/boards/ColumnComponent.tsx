@@ -20,7 +20,7 @@ export const ColumnComponent: React.FC<Props> = ({ column, boardId, onCardUpdate
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/boards/boards/${boardId}/columns/${column.id}/cards`);
+      const response = await fetch(`/api/boards/${boardId}/columns/${column.id}/cards`);
       if (!response.ok) {
         if (response.status === 404) {
           setCards([]);
@@ -67,7 +67,7 @@ export const ColumnComponent: React.FC<Props> = ({ column, boardId, onCardUpdate
 
   const handleCardDelete = async (cardId: string) => {
     try {
-      const response = await fetch(`/api/boards/boards/${boardId}/columns/${column.id}/cards/${cardId}`, {
+      const response = await fetch(`/api/boards/${boardId}/columns/${column.id}/cards/${cardId}`, {
         method: 'DELETE'
       });
       if (!response.ok) {
@@ -85,7 +85,7 @@ export const ColumnComponent: React.FC<Props> = ({ column, boardId, onCardUpdate
     if (!card) return;
 
     try {
-      const response = await fetch(`/api/boards/boards/${boardId}/columns/${column.id}/cards/${cardId}`, {
+      const response = await fetch(`/api/boards/${boardId}/columns/${column.id}/cards/${cardId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

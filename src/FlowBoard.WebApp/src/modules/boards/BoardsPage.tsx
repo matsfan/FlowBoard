@@ -12,7 +12,7 @@ export const BoardsPage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/boards/boards');
+      const res = await fetch('/api/boards');
       if (!res.ok) throw new Error(`Error ${res.status}`);
       const data = await res.json();
       // API returns { boards: [...] }

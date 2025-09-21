@@ -17,8 +17,8 @@ export const BoardPage: React.FC<Props> = ({ boardId }) => {
     setError(null);
     try {
       const [bRes, cRes] = await Promise.all([
-        fetch(`/api/boards/boards/${boardId}`),
-        fetch(`/api/boards/boards/${boardId}/columns`),
+        fetch(`/api/boards/${boardId}`),
+        fetch(`/api/boards/${boardId}/columns`),
       ]);
       if (!bRes.ok) throw new Error(`Board not found (${bRes.status})`);
       if (!cRes.ok) throw new Error(`Failed to load columns (${cRes.status})`);

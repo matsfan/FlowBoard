@@ -50,7 +50,10 @@ if (app.Environment.IsDevelopment())
 
 app.MapDefaultEndpoints();
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // Apply CORS (before endpoints)
 app.UseCors(DevCorsPolicy);
@@ -61,5 +64,7 @@ app.UseFastEndpoints();
 app.UseSwaggerGen();
 
 app.Run();
+
+public partial class Program { }
 
 public sealed class WebAssemblyMarker { }

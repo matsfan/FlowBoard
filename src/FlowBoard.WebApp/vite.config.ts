@@ -8,9 +8,9 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        // Match WebApi launchSettings HTTPS port to avoid proxy connection refused
+        // Match WebApi HTTP port (we run Kestrel without HTTPS in dev)
         // If you change WebApi port, update this accordingly
-        target: 'https://localhost:56157',
+        target: 'http://localhost:56158',
         changeOrigin: true,
         secure: false,
         rewrite: path => path.replace(/^\/api/, '')
