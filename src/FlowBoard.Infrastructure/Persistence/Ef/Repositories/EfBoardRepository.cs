@@ -31,6 +31,7 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
         return await db.Boards
             .Include(b => b.Columns)
             .ThenInclude(c => c.Cards)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(b => b.Id == id, ct);
     }
 
@@ -40,6 +41,7 @@ public sealed class EfBoardRepository(FlowBoardDbContext db) : IBoardRepository
             .AsNoTracking()
             .Include(b => b.Columns)
             .ThenInclude(c => c.Cards)
+            .AsSplitQuery()
             .ToListAsync(ct);
 
         // Ensure nested collections are ordered deterministically

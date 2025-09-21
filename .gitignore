@@ -423,3 +423,5 @@ src/FlowBoard.WebApi/flowboard.db-wal
 src/FlowBoard.WebApi/flowboard.db-shm
 src/FlowBoard.WebApi/flowboard.db-shm
 src/FlowBoard.WebApi/flowboard.dev.db
+src/FlowBoard.WebApi/flowboard.dev.db-shm
+src/FlowBoard.WebApi/flowboard.dev.db-wal

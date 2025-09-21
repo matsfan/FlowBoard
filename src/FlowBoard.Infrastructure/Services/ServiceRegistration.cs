@@ -42,7 +42,10 @@ public static class ServiceRegistration
         else
         {
             var connectionString = configuration?.GetConnectionString("FlowBoard") ?? "Data Source=flowboard.db";
-            services.AddDbContext<FlowBoardDbContext>(o => o.UseSqlite(connectionString));
+            services.AddDbContext<FlowBoardDbContext>(o =>
+            {
+                o.UseSqlite(connectionString);
+            });
             services.AddScoped<IBoardRepository, EfBoardRepository>();
         }
 

@@ -3,6 +3,8 @@ using FastEndpoints.Swagger;
 using Microsoft.Extensions.DependencyInjection;
 using FlowBoard.Application.Services;
 using FlowBoard.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
+using FlowBoard.Infrastructure.Persistence.Ef;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,10 +44,16 @@ var app = builder.Build();
 // Seed demo data (boards, columns, cards) only in Development
 if (app.Environment.IsDevelopment())
 {
-    using (var scope = app.Services.CreateScope())
+    using var scope = app.Services.CreateScope();
+    var sp = scope.ServiceProvider;
+    // Ensure database exists and is migrated before seeding
+    var db = sp.GetService<FlowBoardDbContext>();
+    if (db is not null)
     {
-        await SeedData.EnsureSeededAsync(scope.ServiceProvider);
+        await db.Database.MigrateAsync();
     }
+
+    await SeedData.EnsureSeededAsync(sp);
 }
 
 app.MapDefaultEndpoints();
