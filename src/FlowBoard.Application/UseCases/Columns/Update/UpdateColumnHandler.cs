@@ -3,7 +3,7 @@ using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
 namespace FlowBoard.Application.UseCases.Columns.Update;
-public sealed class UpdateColumnHandler(IBoardRepository repository) : IRequestHandler<UpdateColumnCommand, Result<ColumnDto>>
+public sealed class UpdateColumnHandler(IBoardRepository repository, IUserContext userContext) : IRequestHandler<UpdateColumnCommand, Result<ColumnDto>>
 {
     public async Task<Result<ColumnDto>> Handle(UpdateColumnCommand request, CancellationToken cancellationToken)
     {
@@ -13,7 +13,7 @@ public sealed class UpdateColumnHandler(IBoardRepository repository) : IRequestH
         // Compute operations required to reach desired state.
         var columnId = new ColumnId(request.ColumnId);
         // Rename first (domain ensures uniqueness)
-        var renameResult = board.RenameColumn(columnId, request.Name);
+        var renameResult = board.RenameColumn(columnId, request.Name, userContext.CurrentUserId);
         if (renameResult.IsFailure)
             return Result<ColumnDto>.Failure(renameResult.Errors);
         // Reorder if needed

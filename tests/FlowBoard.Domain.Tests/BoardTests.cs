@@ -1,5 +1,6 @@
 using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.Abstractions;
+using FlowBoard.Domain.ValueObjects;
 
 namespace FlowBoard.Domain.Tests;
 
@@ -9,12 +10,15 @@ public class BoardTests
     {
         public DateTimeOffset UtcNow { get; } = now;
     }
+    
+    // Test user for domain tests
+    private static readonly UserId TestUserId = new(Guid.Parse("550e8400-e29b-41d4-a716-446655440000"));
 
     [Fact]
     public void Create_Fails_When_Name_Empty()
     {
         var clock = new TestClock(DateTimeOffset.UnixEpoch);
-        var result = Board.Create("   ", clock);
+        var result = Board.Create("   ", TestUserId, clock);
         Assert.True(result.IsFailure);
         Assert.Contains(result.Errors, e => e.Code == "Board.Name.Empty");
     }

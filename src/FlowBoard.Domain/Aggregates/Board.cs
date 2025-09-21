@@ -8,6 +8,7 @@ namespace FlowBoard.Domain.Aggregates;
 public sealed class Board
 {
     private readonly List<Column> _columns = [];
+    private readonly List<BoardMember> _members = [];
 
     // EF Core parameterless constructor
     private Board() { }
@@ -23,9 +24,10 @@ public sealed class Board
     public BoardName Name { get; private set; } = null!;
     public DateTimeOffset CreatedUtc { get; }
     public IReadOnlyCollection<Column> Columns => _columns.AsReadOnly();
+    public IReadOnlyCollection<BoardMember> Members => _members.AsReadOnly();
 
     #region Board lifecycle
-    public static Result<Board> Create(string name, IClock clock)
+    public static Result<Board> Create(string name, UserId creatorId, IClock clock)
     {
         var nameResult = BoardName.Create(name);
         if (nameResult.IsFailure)
@@ -33,11 +35,20 @@ public sealed class Board
 
         var now = clock.UtcNow;
         var board = new Board(BoardId.New(), nameResult.Value!, now);
+        
+        // Add the creator as the initial owner
+        var initialMember = new BoardMember(creatorId, BoardRole.Owner, now);
+        board._members.Add(initialMember);
+        
         return board;
     }
 
-    public Result Rename(string newName)
+    public Result Rename(string newName, UserId actorUserId)
     {
+        var ownerCheck = EnsureOwner(actorUserId);
+        if (ownerCheck.IsFailure)
+            return ownerCheck;
+            
         var nameResult = BoardName.Create(newName);
         if (nameResult.IsFailure)
             return Result.Failure(nameResult.Errors);
@@ -48,9 +59,100 @@ public sealed class Board
     }
     #endregion
 
-    #region Columns
-    public Result<Column> AddColumn(string name, int? wipLimit = null)
+    #region Membership
+    /// <summary>
+    /// Adds a new member to the board with the specified role.
+    /// </summary>
+    public Result AddMember(UserId userId, BoardRole role, IClock clock)
     {
+        if (_members.Any(m => m.Id == userId))
+            return Error.Conflict("Board.Member.AlreadyExists", "User is already a member of this board");
+
+        var member = new BoardMember(userId, role, clock.UtcNow);
+        _members.Add(member);
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Removes a member from the board, but prevents removing the last owner.
+    /// </summary>
+    public Result RemoveMember(UserId userId)
+    {
+        var member = _members.FirstOrDefault(m => m.Id == userId);
+        if (member is null)
+            return Error.NotFound("Board.Member.NotFound", "User is not a member of this board");
+
+        // Check if this would remove the last owner
+        if (member.Role == BoardRole.Owner)
+        {
+            var ownerCount = _members.Count(m => m.Role == BoardRole.Owner);
+            if (ownerCount <= 1)
+                return Error.Validation("Board.Member.LastOwner", "Cannot remove the last owner from the board");
+        }
+
+        _members.Remove(member);
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Changes a member's role. Prevents removing the last owner.
+    /// </summary>
+    public Result ChangeRole(UserId userId, BoardRole newRole)
+    {
+        var member = _members.FirstOrDefault(m => m.Id == userId);
+        if (member is null)
+            return Error.NotFound("Board.Member.NotFound", "User is not a member of this board");
+
+        // If changing from Owner to Member, ensure we're not removing the last owner
+        if (member.Role == BoardRole.Owner && newRole == BoardRole.Member)
+        {
+            var ownerCount = _members.Count(m => m.Role == BoardRole.Owner);
+            if (ownerCount <= 1)
+                return Error.Validation("Board.Member.LastOwner", "Cannot remove the last owner from the board");
+        }
+
+        member.ChangeRole(newRole);
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Checks if a user is an owner of this board.
+    /// </summary>
+    public bool IsOwner(UserId userId) => _members.Any(m => m.Id == userId && m.Role == BoardRole.Owner);
+
+    /// <summary>
+    /// Checks if a user is a member (any role) of this board.
+    /// </summary>
+    public bool HasMember(UserId userId) => _members.Any(m => m.Id == userId);
+
+    /// <summary>
+    /// Ensures the actor is an owner of this board for governance operations.
+    /// </summary>
+    private Result EnsureOwner(UserId actorUserId)
+    {
+        if (!IsOwner(actorUserId))
+            return Error.Forbidden("Board.Permission.OwnerRequired", "Only board owners can perform this action");
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Ensures the actor is a collaborator (member or owner) for content operations.
+    /// </summary>
+    private Result EnsureCollaborator(UserId actorUserId)
+    {
+        if (!HasMember(actorUserId))
+            return Error.Forbidden("Board.Permission.MemberRequired", "Only board members can perform this action");
+        return Result.Success();
+    }
+    #endregion
+
+    #region Columns
+    public Result<Column> AddColumn(string name, UserId actorUserId, int? wipLimit = null)
+    {
+        var collaboratorCheck = EnsureCollaborator(actorUserId);
+        if (collaboratorCheck.IsFailure)
+            return Result<Column>.Failure(collaboratorCheck.Errors);
+            
         var nameResult = ColumnName.Create(name);
         if (nameResult.IsFailure)
             return Result<Column>.Failure(nameResult.Errors);
@@ -73,8 +175,12 @@ public sealed class Board
         return column;
     }
 
-    public Result RenameColumn(ColumnId id, string newName)
+    public Result RenameColumn(ColumnId id, string newName, UserId actorUserId)
     {
+        var collaboratorCheck = EnsureCollaborator(actorUserId);
+        if (collaboratorCheck.IsFailure)
+            return collaboratorCheck;
+            
         var column = _columns.FirstOrDefault(c => c.Id == id);
         if (column is null)
             return Error.NotFound("Column.NotFound", "Column not found");
@@ -113,8 +219,12 @@ public sealed class Board
         return Result.Success();
     }
 
-    public Result<Card> AddCard(ColumnId columnId, string title, string? description, IClock clock)
+    public Result<Card> AddCard(ColumnId columnId, string title, string? description, UserId actorUserId, IClock clock)
     {
+        var collaboratorCheck = EnsureCollaborator(actorUserId);
+        if (collaboratorCheck.IsFailure)
+            return Result<Card>.Failure(collaboratorCheck.Errors);
+            
         var column = _columns.FirstOrDefault(c => c.Id == columnId);
         if (column is null)
             return Error.NotFound("Column.NotFound", "Column not found");
