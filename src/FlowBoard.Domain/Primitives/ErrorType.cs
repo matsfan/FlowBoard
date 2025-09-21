@@ -5,5 +5,6 @@ public enum ErrorType
     Validation,
     Conflict,
     NotFound,
+    Forbidden,
     Unexpected
 }

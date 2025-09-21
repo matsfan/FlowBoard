@@ -3,14 +3,14 @@ using FlowBoard.Domain.Primitives;
 using FlowBoard.Domain.ValueObjects;
 
 namespace FlowBoard.Application.UseCases.Columns.Create;
-public sealed class CreateColumnHandler(IBoardRepository repository) : IRequestHandler<CreateColumnCommand, Result<ColumnDto>>
+public sealed class CreateColumnHandler(IBoardRepository repository, IUserContext userContext) : IRequestHandler<CreateColumnCommand, Result<ColumnDto>>
 {
     public async Task<Result<ColumnDto>> HandleAsync(CreateColumnCommand command, CancellationToken ct = default)
     {
         var board = await repository.GetByIdAsync(new BoardId(command.BoardId), ct);
         if (board is null)
             return Error.NotFound("Board.NotFound", "Board not found");
-        var result = board.AddColumn(command.Name, command.WipLimit);
+        var result = board.AddColumn(command.Name, userContext.CurrentUserId, command.WipLimit);
         if (result.IsFailure)
             return result.Errors.ToArray();
         await repository.UpdateAsync(board, ct);

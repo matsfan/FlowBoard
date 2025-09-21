@@ -26,6 +26,18 @@ public sealed class UpdateBoardEndpoint(IMediator mediator) : Endpoint<UpdateBoa
         var result = await mediator.Send(new UpdateBoardCommand(id, req.Name), ct);
         if (result.IsFailure)
         {
+            // Map specific error types to HTTP status codes
+            if (result.Errors.Any(e => e.Type == FlowBoard.Domain.Primitives.ErrorType.NotFound))
+            {
+                await Send.NotFoundAsync(ct);
+                return;
+            }
+            if (result.Errors.Any(e => e.Type == FlowBoard.Domain.Primitives.ErrorType.Forbidden))
+            {
+                await Send.ForbiddenAsync(ct);
+                return;
+            }
+            // Default to 400 for validation/conflict errors
             AddError(string.Join("; ", result.Errors.Select(e => e.Code + ":" + e.Message)));
             await Send.ErrorsAsync(cancellation: ct);
             return;

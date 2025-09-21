@@ -27,12 +27,15 @@ public class CardsEndpointsTests : IClassFixture<WebApiTestFactory>
         using var scope = Factory.Services.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IBoardRepository>();
         var clock = scope.ServiceProvider.GetRequiredService<IClock>();
+        var userContext = scope.ServiceProvider.GetRequiredService<IUserContext>();
         
-        var boardResult = Board.Create("Test Board", clock);
+        // Use the same user ID that will be used by the API endpoints
+        var userId = userContext.CurrentUserId;
+        var boardResult = Board.Create("Test Board", userId, clock);
         Assert.True(boardResult.IsSuccess);
         var board = boardResult.Value!;
         
-        var columnResult = board.AddColumn("Test Column", null);
+        var columnResult = board.AddColumn("Test Column", userId, null);
         Assert.True(columnResult.IsSuccess);
         
         await repository.AddAsync(board, CancellationToken.None);

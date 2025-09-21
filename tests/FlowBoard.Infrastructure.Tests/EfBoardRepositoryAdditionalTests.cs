@@ -1,4 +1,5 @@
 using FlowBoard.Domain.Aggregates;
+using FlowBoard.Domain.ValueObjects;
 using FlowBoard.Infrastructure.Persistence.Ef;
 using FlowBoard.Infrastructure.Persistence.Ef.Repositories;
 using Microsoft.Data.Sqlite;
@@ -27,7 +28,8 @@ public class EfBoardRepositoryAdditionalTests
         await using var context = CreateContext(inMemorySqliteConnection);
         var repository = new EfBoardRepository(context);
         var clock = new SystemClock();
-        var board = Board.Create("My Board", clock).Value!;
+        var userId = UserId.New();
+        var board = Board.Create("My Board", userId, clock).Value!;
         await repository.AddAsync(board);
         var exists = await repository.ExistsByNameAsync("my board");
         Assert.True(exists);
@@ -41,9 +43,10 @@ public class EfBoardRepositoryAdditionalTests
         await using var context = CreateContext(inMemorySqliteConnection);
         var repository = new EfBoardRepository(context);
         var clock = new SystemClock();
-        var board = Board.Create("Board", clock).Value!;
+        var userId = UserId.New();
+        var board = Board.Create("Board", userId, clock).Value!;
         await repository.AddAsync(board);
-        board.Rename("Renamed");
+        board.Rename("Renamed", userId);
         await repository.UpdateAsync(board);
         var reloaded = await repository.GetByIdAsync(board.Id);
         Assert.Equal("Renamed", reloaded!.Name.Value);

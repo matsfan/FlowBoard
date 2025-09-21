@@ -32,7 +32,8 @@ public class DeleteBoardHandlerTests
     public async Task Deletes_When_Exists()
     {
         // Create a real board via domain factory so it's a valid aggregate
-        var create = Board.Create("Board to delete", new SystemClock());
+        var testUserId = new UserId(Guid.Parse("550e8400-e29b-41d4-a716-446655440000"));
+        var create = Board.Create("Board to delete", testUserId, new SystemClock());
         Assert.True(create.IsSuccess);
         var existing = create.Value!;
 

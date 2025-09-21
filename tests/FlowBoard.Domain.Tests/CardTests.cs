@@ -7,15 +7,16 @@ namespace FlowBoard.Domain.Tests;
 public class CardTests
 {
     private sealed class TestClock(DateTimeOffset now) : IClock { public DateTimeOffset UtcNow { get; } = now; }
+    private static readonly UserId TestUserId = new(Guid.Parse("550e8400-e29b-41d4-a716-446655440000"));
 
     [Fact]
     public void AddCard_To_Column_Assigns_Order_And_Timestamps()
     {
         var now = DateTimeOffset.UtcNow;
         var clock = new TestClock(now);
-        var board = Board.Create("Board A", clock).Value!;
-        var column = board.AddColumn("Todo").Value!;
-        var cardResult = board.AddCard(column.Id, "Task 1", null, clock);
+        var board = Board.Create("Board A", TestUserId, clock).Value!;
+        var column = board.AddColumn("Todo", TestUserId).Value!;
+        var cardResult = board.AddCard(column.Id, "Task 1", null, TestUserId, clock);
         Assert.True(cardResult.IsSuccess);
         var card = cardResult.Value!;
         Assert.Equal(0, card.Order.Value);
@@ -27,11 +28,11 @@ public class CardTests
     {
         var now = DateTimeOffset.UtcNow;
         var clock = new TestClock(now);
-        var board = Board.Create("Board A", clock).Value!;
-        var column = board.AddColumn("Todo", wipLimit: 1).Value!;
-        var first = board.AddCard(column.Id, "Task 1", null, clock);
+        var board = Board.Create("Board A", TestUserId, clock).Value!;
+        var column = board.AddColumn("Todo", TestUserId, wipLimit: 1).Value!;
+        var first = board.AddCard(column.Id, "Task 1", null, TestUserId, clock);
         Assert.True(first.IsSuccess);
-        var second = board.AddCard(column.Id, "Task 2", null, clock);
+        var second = board.AddCard(column.Id, "Task 2", null, TestUserId, clock);
         Assert.True(second.IsFailure);
         Assert.Contains(second.Errors, e => e.Code == "Column.WipLimit.Violation");
     }
@@ -40,9 +41,9 @@ public class CardTests
     public void AddCard_Fails_When_Column_NotFound()
     {
         var clock = new TestClock(DateTimeOffset.UtcNow);
-        var board = Board.Create("Board A", clock).Value!;
+        var board = Board.Create("Board A", TestUserId, clock).Value!;
         var bogusId = new ColumnId(Guid.NewGuid());
-        var result = board.AddCard(bogusId, "X", null, clock);
+        var result = board.AddCard(bogusId, "X", null, TestUserId, clock);
         Assert.True(result.IsFailure);
         Assert.Contains(result.Errors, e => e.Code == "Column.NotFound");
     }

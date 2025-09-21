@@ -4,13 +4,13 @@ using FlowBoard.Domain.Aggregates;
 using FlowBoard.Domain.Primitives;
 
 namespace FlowBoard.Application.UseCases.Boards.Create;
-public sealed class CreateBoardHandler(IBoardRepository repository, IClock clock) : IRequestHandler<CreateBoardCommand, Result<BoardDto>>
+public sealed class CreateBoardHandler(IBoardRepository repository, IClock clock, IUserContext userContext) : IRequestHandler<CreateBoardCommand, Result<BoardDto>>
 {
     public async Task<Result<BoardDto>> HandleAsync(CreateBoardCommand command, CancellationToken ct = default)
     {
         if (await repository.ExistsByNameAsync(command.Name.Trim(), ct))
             return Error.Conflict("Board.Name.Duplicate", "A board with that name already exists");
-        var boardResult = Board.Create(command.Name, clock);
+        var boardResult = Board.Create(command.Name, userContext.CurrentUserId, clock);
         if (boardResult.IsFailure)
             return boardResult.Errors.ToArray();
         var board = boardResult.Value!;

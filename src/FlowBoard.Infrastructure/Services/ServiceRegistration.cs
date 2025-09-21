@@ -15,6 +15,9 @@ public static class ServiceRegistration
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration? configuration = null)
     {
         services.AddSingleton<IClock, SystemClock>();
+        
+        // Register dev stub user context (replace with real auth in production)
+        services.AddScoped<IUserContext, DevUserContext>();
 
         var useInMemory = false;
         var raw = configuration?["Persistence:UseInMemory"];
