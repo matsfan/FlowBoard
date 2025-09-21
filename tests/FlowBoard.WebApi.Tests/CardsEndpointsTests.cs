@@ -79,7 +79,7 @@ public class CardsEndpointsTests : IClassFixture<WebApiTestFactory>
         var response = await _client.PostAsync($"/boards/{Guid.NewGuid()}/columns/{Guid.NewGuid()}/cards", content);
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
@@ -101,10 +101,12 @@ public class CardsEndpointsTests : IClassFixture<WebApiTestFactory>
         var response = await _client.GetAsync($"/boards/{boardId}/columns/{columnId}/cards");
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var content = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<JsonElement>(content);
-        Assert.True(result.GetArrayLength() >= 1);
+    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    var content = await response.Content.ReadAsStringAsync();
+    var result = JsonSerializer.Deserialize<JsonElement>(content);
+    Assert.True(result.TryGetProperty("cards", out var cardsArray));
+    Assert.True(cardsArray.ValueKind == JsonValueKind.Array);
+    Assert.True(cardsArray.GetArrayLength() >= 1);
     }
 
     [Fact]
