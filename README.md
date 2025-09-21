@@ -89,6 +89,88 @@ Run tests:
 dotnet test src/FlowBoard.sln
 ```
 
+## Database Migrations
+
+FlowBoard uses Entity Framework Core for data persistence with SQLite. When making changes to the domain model, you'll need to create and apply database migrations.
+
+### Prerequisites
+
+Install the Entity Framework Core tools globally (if not already installed):
+
+```bash
+dotnet tool install --global dotnet-ef
+```
+
+Add the tools directory to your PATH (for macOS/Linux with zsh):
+
+```bash
+export PATH="$PATH:/Users/$(whoami)/.dotnet/tools"
+```
+
+Or add permanently to your shell profile:
+
+```bash
+echo 'export PATH="$PATH:/Users/$(whoami)/.dotnet/tools"' >> ~/.zprofile
+```
+
+### Creating a New Migration
+
+When you modify domain entities, value objects, or DbContext configuration:
+
+```bash
+dotnet ef migrations add YourMigrationName -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi
+```
+
+Example:
+
+```bash
+dotnet ef migrations add AddCardPriorityField -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi
+```
+
+This creates migration files in `src/FlowBoard.Infrastructure/Persistence/Ef/Migrations/`.
+
+### Applying Migrations
+
+Apply pending migrations to create/update the database:
+
+```bash
+dotnet ef database update -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi
+```
+
+### Viewing Migration Status
+
+Check which migrations have been applied:
+
+```bash
+dotnet ef migrations list -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi
+```
+
+### Rolling Back Migrations
+
+Revert to a specific migration:
+
+```bash
+dotnet ef database update PreviousMigrationName -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi
+```
+
+### Removing the Last Migration
+
+If you haven't applied a migration yet and want to remove it:
+
+```bash
+dotnet ef migrations remove -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebApi
+```
+
+### Development Database
+
+The development database (`flowboard.dev.db`) is created automatically when you run the application for the first time. The application includes seed data for testing purposes.
+
+To reset your development database:
+
+1. Stop the application
+2. Delete the `flowboard.dev.db` file from the WebApi project root
+3. Run `dotnet ef database update` to recreate with seed data
+
 ## Using Custom Mediator in FlowBoard
 
 This repo uses a custom mediator implementation for application-level commands and queries. Handlers live in `src/FlowBoard.Application/UseCases/**/` and implement `IRequestHandler<TRequest, TResponse>`.
