@@ -8,8 +8,9 @@ public sealed class UpdateBoardEndpoint(IMediator mediator) : Endpoint<UpdateBoa
 {
     public override void Configure()
     {
-        Put("/boards/{boardId:guid}");
+        Put("/{boardId:guid}");
         Group<BoardsGroup>();
+        AllowAnonymous();
         Summary(s => { s.Summary = "Update a board"; s.Description = "Full replacement update of a board (currently only name)"; });
     }
 

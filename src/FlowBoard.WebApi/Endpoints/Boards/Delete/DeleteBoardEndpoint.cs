@@ -8,8 +8,9 @@ public sealed class DeleteBoardEndpoint(IMediator mediator) : EndpointWithoutReq
 {
     public override void Configure()
     {
-        Delete("/boards/{boardId:guid}");
+        Delete("/{boardId:guid}");
         Group<BoardsGroup>();
+        AllowAnonymous();
         Summary(s => { s.Summary = "Delete a board"; s.Description = "Deletes a board by id."; });
     }
 

@@ -8,8 +8,9 @@ public sealed class CreateBoardEndpoint(IMediator mediator) : Endpoint<CreateBoa
 {
     public override void Configure()
     {
-        Post("/boards");
+        Post("/");
         Group<BoardsGroup>();
+        AllowAnonymous();
         Summary(s =>
         {
             s.Summary = "Create a new board";

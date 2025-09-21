@@ -8,7 +8,7 @@ public sealed class ListBoardsEndpoint(IMediator mediator) : EndpointWithoutRequ
 {
     public override void Configure()
     {
-        Get("/boards");
+        Get("/");
         Group<BoardsGroup>();
         AllowAnonymous();
         Summary(s =>

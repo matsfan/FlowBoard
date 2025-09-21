@@ -60,8 +60,9 @@ dotnet run --project src/FlowBoard.WebApi/FlowBoard.WebApi.csproj
 Access Swagger UI:
 
 Once the API is running, navigate to:
-- **https://localhost:56157/swagger** (HTTPS)
-- **http://localhost:56158/swagger** (HTTP)
+
+- [**https://localhost:56157/swagger** (HTTPS)](https://localhost:56157/swagger)
+- [**http://localhost:56158/swagger** (HTTP)](http://localhost:56158/swagger)
 
 The Swagger UI provides interactive documentation for all available endpoints and allows you to test the API directly from the browser.
 

@@ -8,7 +8,7 @@ public sealed class GetBoardByIdEndpoint(IBoardRepository repository) : Endpoint
 {
     public override void Configure()
     {
-        Get("/boards/{id:guid}");
+        Get("/{id:guid}");
         Group<BoardsGroup>();
         AllowAnonymous();
     }
