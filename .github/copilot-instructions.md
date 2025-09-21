@@ -10,10 +10,10 @@ Purpose: Give an AI agent just enough repo-specific context (Clean Architecture 
 
 ## Endpoints & Handlers
 
-- **Use FastEndpoints**. Endpoints are thin (<~30 LOC) and delegate to MediatR handlers. Example: `Endpoints/Boards/Create/CreateBoardEndpoint.cs` sends `CreateBoardCommand` and returns `BoardDto`.
-- **Queries** typically go through handlers (e.g., `ListBoardsEndpoint` → `ListBoardsQuery`), but simple reads may use repositories directly (e.g., `GetById` endpoint injects `IBoardRepository`). Keep endpoints free of business logic.
-- **Map domain → DTO exclusively in handlers** (see `UseCases/Boards/Create/CreateBoardHandler.cs` and `UseCases/Boards/BoardDto.cs`).
-- **All endpoints use `AllowAnonymous()`** for dev simplicity. Route groups: `BoardsGroup` for `/boards`, `CardsGroup` for `/boards/{boardId}/columns/{columnId}/cards`.
+**Use FastEndpoints**. Endpoints are thin (<~30 LOC) and delegate to application handlers via the custom mediator. Example: `Endpoints/Boards/Create/CreateBoardEndpoint.cs` sends `CreateBoardCommand` and returns `BoardDto`.
+**Queries** typically go through handlers (e.g., `ListBoardsEndpoint` → `ListBoardsQuery`), but simple reads may use repositories directly (e.g., `GetById` endpoint injects `IBoardRepository`). Keep endpoints free of business logic.
+**Map domain → DTO exclusively in handlers** (see `UseCases/Boards/Create/CreateBoardHandler.cs` and `UseCases/Boards/BoardDto.cs`).
+**All endpoints use `AllowAnonymous()`** for dev simplicity. Route groups: `BoardsGroup` for `/boards`, `CardsGroup` for `/boards/{boardId}/columns/{columnId}/cards`.
 
 ## Domain Model
 
@@ -25,7 +25,7 @@ Purpose: Give an AI agent just enough repo-specific context (Clean Architecture 
 - **Contract**: `Application/Abstractions/IBoardRepository.cs`. Implement in BOTH:
   - **EF Core**: `Infrastructure/Persistence/Ef/Repositories/EfBoardRepository.cs`; model in `Infrastructure/Persistence/Ef/FlowBoardDbContext.cs` (ValueConverters for IDs/Order, owned types for names, owns-many for Columns/Cards with tables `Columns`/`Cards`).
   - **InMemory**: `Infrastructure/Persistence/InMemory/InMemoryBoardRepository.cs`.
-- **Composition**: `WebApi/Program.cs` registers FastEndpoints, Swagger, MediatR (scans Application), and CORS for `http://localhost:5173`. Infra DI (`Infrastructure/Services/ServiceRegistration.cs`) registers `IClock` and chooses EF vs InMemory via config key `Persistence:UseInMemory` (false → SQLite `FlowBoard` connection string by default).
+- **Composition**: `WebApi/Program.cs` registers FastEndpoints, Swagger, the custom mediator (scans Application), and CORS for `http://localhost:5173`. Infra DI (`Infrastructure/Services/ServiceRegistration.cs`) registers `IClock` and chooses EF vs InMemory via config key `Persistence:UseInMemory` (false → SQLite `FlowBoard` connection string by default).
 
 ## HTTP Error Mapping
 
@@ -104,7 +104,7 @@ dotnet ef database update -p src/FlowBoard.Infrastructure -s src/FlowBoard.WebAp
 ## Frontend Integration
 
 - **Vite config** (`src/FlowBoard.WebApp/vite.config.ts`) proxies `/api` calls to `http://localhost:56158`
-- **Hash routing**: `#/` → boards list, `#/boards/:id` → board page
+- **Hash routing**: '#/' → boards list, '#/boards/:id' → board page
 - **API calls** use `/api` prefix, automatically proxied to backend
 - **CORS** enabled for `http://localhost:5173` in `Program.cs`
 

@@ -199,7 +199,7 @@ Add a new use case by:
 
 1. Creating a command or query record in `UseCases/<Area>/` implementing `IRequest<Result|Result<T>>`.
 2. Implementing a handler in `UseCases/<Area>/` implementing `IRequestHandler<TRequest, Result|Result<T>>` and orchestrating the Domain.
-3. Calling it from a FastEndpoint via `IMediator`.
+3. Calling it from a FastEndpoint via the custom `IMediator`.
 
 ## API (REST CRUD)
 
